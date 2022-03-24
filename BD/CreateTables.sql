@@ -27,8 +27,7 @@ CREATE TABLE Stationnement (id_stationnement char(20) PRIMARY KEY, prix double, 
 CREATE TABLE Gerer (id_utilisateur char(20) NOT NULL REFERENCES Utilisateur(id_utilisateur) ON DELETE CASCADE,
     id_stationnement char(20) NOT NULL REFERENCES Stationnement(id_stationnement) ON DELETE CASCADE);
 
-CREATE TABLE Plage_horaire (id_plage_horaire char(20) PRIMARY KEY, annee year, mois integer, jour integer,
-    heure_arrivee time(0), heure_depart time(0));
+CREATE TABLE Plage_horaire (id_plage_horaire char(20) PRIMARY KEY, date_arrivee datetime(0), date_depart datetime(0));
 
 CREATE TABLE Reservation (id_plage_horaire char(20) PRIMARY KEY,
     FOREIGN KEY(id_plage_horaire) REFERENCES Plage_horaire(id_plage_horaire) ON DELETE CASCADE);
@@ -79,13 +78,13 @@ INSERT INTO Stationnement (id_stationnement, prix, longueur, largeur, hauteur, e
 
 INSERT INTO Gerer (id_utilisateur, id_stationnement) VALUES (1, 1), (2, 2), (3, 3);
 
-INSERT INTO Plage_horaire (id_plage_horaire, annee, mois, jour, heure_arrivee, heure_depart)
-    VALUES (1, 2007, 8, 14, '9:00:00', '10:00:00'),
-           (2, 2010, 8, 15, '17:00:00', '17:00:00'),
-           (3, 2021, 5, 24, '9:30:00', '10:00:00'),
-           (4, 2006, 3, 26, '12:00:00', '13:00:00'),
-           (5, 2003, 9, 30, '2:30:00', '3:45:00'),
-           (6, 2004, 11, 21, '20:15:00', '21:00:00');
+INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart)
+    VALUES (1, '2022-2-20 9:00:00', '2022-2-20 10:00:00'),
+           (2, '2022-2-22 9:00:00', '2022-2-23 10:15:00'),
+           (3, '2022-2-28 9:00:00', '2022-3-1 10:00:00'),
+           (4, '2022-3-14 9:00:00', '2022-3-14 10:00:00'),
+           (5, '2022-3-15 15:00:00', '2022-3-15 20:45:00'),
+           (6, '2022-3-16 12:00:00', '2022-3-17 17:30:00');
 
 INSERT INTO Reservation (id_plage_horaire) VALUES (2), (3), (4), (5), (6);
 
