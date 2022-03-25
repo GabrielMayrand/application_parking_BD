@@ -14,7 +14,7 @@ SELECT * FROM stationnement;
 
 #get parkingList by filters
 #price
-SELECT * FROM stationnement WHERE prix_min <= $prix AND prix_max >= $prix;
+SELECT * FROM stationnement WHERE $prix_min <= prix AND $prix_max >= prix;
 
 #dimension
 SELECT * FROM stationnement WHERE longueur >= $longueur AND largeur >= $largeur AND hauteur >= $hauteur;
