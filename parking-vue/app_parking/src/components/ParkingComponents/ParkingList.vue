@@ -14,7 +14,7 @@ import ParkingCard from "./ParkingCard.vue";
 export default {
     name : "ParkingList",
     props: {
-        ParkingList: Object,
+        ParkingList: Array,
     },
     components: {
         ParkingCard,

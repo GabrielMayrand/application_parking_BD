@@ -2,14 +2,14 @@
   <div>
       <div id="Filters">
           <ul v-for="filter in filters" v-bind:key="filter.id">
-            <Filter id="filter" :filter="filter"/>
+            <FilterComponent  :filter="filter"/>
           </ul>
       </div>
   </div>
 </template>
 
 <script>
-import Filter from "./Filter.vue";
+import FilterComponent from "./Filter.vue";
 
 export default {
     name : "Filters",
@@ -17,7 +17,7 @@ export default {
         filters: Array,
     },
     components: {
-        Filter,
+        FilterComponent,
     },
 };
 </script>

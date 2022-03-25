@@ -43,11 +43,10 @@ export default {
             });
         }
     },
-    mounted() {
+    created() {
         this.finalReservationDate = new Date(this.finalReservationDate.setDate(this.todayDate.getDate() + this.parking.advanceDays));
         this.finalWeekDate = new Date(this.finalWeekDate.setDate(this.todayDate.getDate() + 6));
         this.getWeekBlocks();
-        
     },
 }
 </script>

@@ -1,12 +1,11 @@
 <template>
     <div>
-        <table id="table">
+        <table id="table" :v-if="!this.Days.length != 0">
             <tr>
                 <th v-for="day in this.Days" v-bind:key="day.id">
-                    <Day :dateDay="day.date" :plagesWeek="this.plagesWeek"/>
+                    <Day :dateDay="day.date" :plages="this.plagesWeek"/>
                 </th>
-            </tr>
-          
+            </tr>      
       </table>
     </div>
 </template>
@@ -33,14 +32,13 @@ export default {
     data() {
         return {
             Days:Array,
-            plagesDay: [],
             secondDate: new Date(),
             thirdDate: new Date(),
             forthDate: new Date(),
             fithDate: new Date(),
             sixthDate: new Date(),
             seventhDate: new Date(),
-        }
+        };
     },
     components: {
         Day,
@@ -52,6 +50,7 @@ export default {
         finalReservationDate: Date,
     },
     created() {
+        console.log(this.plagesWeek);
         this.secondDate = new Date(this.secondDate.setDate(this.todayDate.getDate() + 1));
         this.thirdDate = new Date(this.thirdDate.setDate(this.todayDate.getDate() + 2));
         this.forthDate = new Date(this.forthDate.setDate(this.todayDate.getDate() + 3));
@@ -88,6 +87,7 @@ export default {
                 date:  this.seventhDate,
             },
         ];
+        
     }
 }
 </script>

@@ -15,7 +15,7 @@
 export default {
     data() {
         return {
-            plage: Object,
+            plageBlock: Object,
         }
     },
     props:{
@@ -23,11 +23,10 @@ export default {
         plagesBlock: Array,
     },
     methods :{
-        //get plage of this block
         getPlage(){
             this.plagesBlock.every(plage => {
                 if(plage.startTime == this.block.startTime){
-                    this.plage = plage;
+                    this.plageBlock = plage;
                     return false;
                 }
             });

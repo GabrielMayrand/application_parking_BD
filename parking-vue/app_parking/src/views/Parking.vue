@@ -66,7 +66,7 @@ export default {
                     startTime: "14:00",
                     endTime: "14:15",
                     price: 10,
-                    date: "2022-04-31",
+                    date: "2022-03-30",
                 },
             ]
         },

@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="notification is-info is-large ">
-            {{this.date.getFullYear()}}-{{this.date.getMonth()}}-{{this.date.getDate()}}
+            {{this.dateDay.getFullYear()}}-{{this.dateDay.getMonth()}}-{{this.dateDay.getDate()}}
         </div>
         <ul v-for="block in this.blocks" v-bind:key="block.id">
             <Block :block="block" :plagesBlock="this.plagesBlock"/>
@@ -21,11 +21,11 @@ export default {
     },
     props: {
         dateDay: Date,
-        plagesWeek: Array,
+        plages: Array,
     },
     methods: {
-        getPlagesBlock(){
-            this.plagesWeek = this.plagesDay.filter(plage => {
+        getPlagesBlock() {
+            this.plages.every(plage => {
                 let date = new Date(plage.date.split("-")[0], plage.date.split("-")[1] - 1, plage.date.split("-")[2]);
                 if(date.getTime() == this.date.getTime()){
                     this.plagesBlock.push(plage);
@@ -44,7 +44,9 @@ export default {
         Block,
     },
     created () {
+        console.log(this.plages);
         this.getPlagesBlock();
+        console.log(this.plagesBlock);
         this.blocks = [
             {
                 id: 1,
