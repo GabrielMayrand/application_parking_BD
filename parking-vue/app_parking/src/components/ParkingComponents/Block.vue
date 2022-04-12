@@ -1,10 +1,10 @@
 <template>
     <div class="card">
         <div>
-            {{this.block.startTime}}
+            {{block.startTime}}
         </div>
         <div>
-            {{this.block.endTime}}
+            {{block.endTime}}
         </div>
     </div>
 </template>
@@ -24,12 +24,12 @@ export default {
     },
     methods :{
         getPlage(){
-            this.plagesBlock.every(plage => {
-                if(plage.startTime == this.block.startTime){
-                    this.plageBlock = plage;
-                    return false;
-                }
-            });
+            // this.plagesBlock.every(plage => {
+            //     if(plage.startTime == this.block.startTime){
+            //         this.plageBlock = plage;
+            //         return false;
+            //     }
+            // });
         },
     }
 }

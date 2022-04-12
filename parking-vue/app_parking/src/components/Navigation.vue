@@ -9,7 +9,9 @@
                 <router-link  :to="{path:`/signup`}">
                 <a class="button is-primary" ><strong>Sign up</strong></a>
                 </router-link>
-                <a class="button is-light"> Log in </a>
+                <router-link :to="{path:`/login`}">
+                <a class="button is-light" ><strong>Login</strong></a>
+                </router-link>
             </div>
         </div>
     </div>

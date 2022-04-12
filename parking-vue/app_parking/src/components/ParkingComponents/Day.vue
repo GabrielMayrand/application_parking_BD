@@ -1,10 +1,10 @@
 <template>
     <div>
         <div class="notification is-info is-large ">
-            {{this.dateDay.getFullYear()}}-{{this.dateDay.getMonth()}}-{{this.dateDay.getDate()}}
+            {{dateDay.getFullYear()}}-{{dateDay.getMonth()}}-{{dateDay.getDate()}}
         </div>
-        <ul v-for="block in this.blocks" v-bind:key="block.id">
-            <Block :block="block" :plagesBlock="this.plagesBlock"/>
+        <ul v-for="block in blocks" v-bind:key="block.id">
+            <Block :block="block" :plagesBlock="plagesBlock"/>
         </ul>
     </div>
 </template>

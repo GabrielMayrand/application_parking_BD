@@ -1,9 +1,9 @@
 <template>
     <div>
-        <table id="table" :v-if="!this.Days.length != 0">
+        <table id="table" :v-if="!Days.length != 0">
             <tr>
-                <th v-for="day in this.Days" v-bind:key="day.id">
-                    <Day :dateDay="day.date" :plages="this.plagesWeek"/>
+                <th v-for="day in Days" v-bind:key="day.id">
+                    <Day :dateDay="day.date" :plages="plagesWeek"/>
                 </th>
             </tr>      
       </table>
