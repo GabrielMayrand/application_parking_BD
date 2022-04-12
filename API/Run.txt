@@ -1,0 +1,4 @@
+##Open terminal in api file
+env\Scripts\activate.bat
+
+flask run
