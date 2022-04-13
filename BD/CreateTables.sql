@@ -55,6 +55,32 @@ END
 //
 DELIMITER ;
 
+DELIMITER //
+CREATE TRIGGER `Delete_utilisateur` BEFORE DELETE ON `Utilisateur` FOR EACH ROW
+BEGIN
+    DECLARE id_utilisateur_to_delete CHAR(32);
+    SET id_utilisateur_to_delete = OLD.id_utilisateur;
+
+    DELETE FROM Inoccupable WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM Retirer WHERE id_utilisateur = id_utilisateur_to_delete);
+    DELETE FROM Reservation WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM Louer WHERE id_utilisateur = id_utilisateur_to_delete);
+    DELETE FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement IN (SELECT id_stationnement FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete)) 
+                                    OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Louer)
+                                    OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Retirer);
+    DELETE FROM Retirer WHERE id_utilisateur = id_utilisateur_to_delete;
+    DELETE FROM Louer WHERE id_utilisateur = id_utilisateur_to_delete;
+    DELETE FROM Stationnement WHERE id_stationnement IN (SELECT id_stationnement FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete);
+    DELETE FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete;
+    DELETE FROM Possede WHERE id_stationnement NOT IN (SELECT id_stationnement FROM Stationnement)
+                            OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Plage_horaire);
+    DELETE FROM Vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_utilisateur = id_utilisateur_to_delete);
+    DELETE FROM Appartient WHERE id_utilisateur = id_utilisateur_to_delete;
+    DELETE FROM Evalue WHERE id_utilisateur_locataire = id_utilisateur_to_delete or id_utilisateur_locateur = id_utilisateur_to_delete;
+    DELETE FROM Locataire WHERE id_utilisateur = id_utilisateur_to_delete;
+    DELETE FROM Locateur WHERE id_utilisateur = id_utilisateur_to_delete;
+END
+//
+DELIMITER ;
+
 
 
 set @id1 = md5('Blo');
