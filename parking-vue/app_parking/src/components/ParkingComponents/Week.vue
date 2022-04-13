@@ -50,7 +50,6 @@ export default {
         finalReservationDate: Date,
     },
     created() {
-        console.log(this.plagesWeek);
         this.secondDate = new Date(this.secondDate.setDate(this.todayDate.getDate() + 1));
         this.thirdDate = new Date(this.thirdDate.setDate(this.todayDate.getDate() + 2));
         this.forthDate = new Date(this.forthDate.setDate(this.todayDate.getDate() + 3));
@@ -87,6 +86,7 @@ export default {
                 date:  this.seventhDate,
             },
         ];
+        //console.log("pw:"+this.plagesWeek);
         
     }
 }

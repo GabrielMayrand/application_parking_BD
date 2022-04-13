@@ -4,7 +4,7 @@
             {{dateDay.getFullYear()}}-{{dateDay.getMonth()}}-{{dateDay.getDate()}}
         </div>
         <ul v-for="block in blocks" v-bind:key="block.id">
-            <Block :block="block" :plagesBlock="plagesBlock"/>
+            <Block :block="block" :plagesBlock="convertFunctiontoArray(plagesBlock)"/>
         </ul>
     </div>
 </template>
@@ -25,6 +25,7 @@ export default {
     },
     methods: {
         getPlagesBlock() {
+            console.log(this.plages[1]);
             this.plages.every(plage => {
                 let date = new Date(plage.date.split("-")[0], plage.date.split("-")[1] - 1, plage.date.split("-")[2]);
                 if(date.getTime() == this.date.getTime()){
@@ -38,15 +39,22 @@ export default {
                     return false;
                 }
             });
-        }
+        },
+        convertFunctiontoArray(functionToConvert){
+            let array = [];
+            for(let i = 0; i < functionToConvert.length; i++){
+                array.push(functionToConvert[i]);
+            }
+            return array;
+        },
     },
     components: {
         Block,
     },
     created () {
-        console.log(this.plages);
+        //console.log("plages:"+this.plages);
         this.getPlagesBlock();
-        console.log(this.plagesBlock);
+        //console.log(this.plagesBlock);
         this.blocks = [
             {
                 id: 1,

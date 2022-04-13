@@ -1,8 +1,8 @@
 <template>
   <div>
       <div id="CarList">
-          <ul v-for="CarCard in CarList" v-bind:key="CarCard.id">
-            <CarCard id="CarCard" :CarCard="CarCard"/>
+          <ul id="carCard" class="card is-primary" v-for="carCard in CarList" v-bind:key="carCard.id">
+            <CarCard id="CarCard" :carCard="carCard"/>
           </ul>
       </div>
   </div>
@@ -23,5 +23,15 @@ export default {
 </script>
 
 <style scoped>
+    #CarList{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    #carCard{
+        flex-wrap: wrap;
+        padding: 10px;
+        margin: 10px;
+    }
 
 </style>

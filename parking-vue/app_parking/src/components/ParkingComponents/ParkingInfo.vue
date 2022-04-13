@@ -5,8 +5,8 @@
                 <p class="title">Stationnement : </p>
                 <p class="subtitle">{{parking.address}}</p>
             </div>
-            <router-link  :to="{path:`/user/${this.owner.id}`}">
-            <div class="card" id="ownerCard">
+            <router-link  :to="{path:`/user/${owner.id}`}">
+            <div class="card notification is-primary is-light" id="ownerCard">
                 <h5><strong>Propriétaire: </strong>{{owner.prenom}} {{owner.nom}}</h5> 
                 <p> <strong>Cote: </strong>{{owner.cote}}</p>
                 <p> <strong>Courriel: </strong>{{owner.email}}</p>
@@ -58,6 +58,9 @@ export default {
                 email: "jeanDupont@mail.com",
             }
         },
+    },
+    mounted() {
+        this.getOwner();
     },
 }
 </script>
