@@ -120,8 +120,9 @@ def parkingList():
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM stationnement")
         parking = cur.fetchall()
+        # make sure data is a list of dictionaries
         parking = [dict(row) for row in parking]
-        return jsonify(parking)
+        return parking
 
 
 # parkinglist filters
