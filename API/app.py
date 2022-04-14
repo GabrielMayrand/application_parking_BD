@@ -50,11 +50,75 @@ def login():
             return jsonify({'message': 'Utilisateur non trouvé'})
 
 
+@app.route('/signup', methods=['POST'])
+def signup():
+    if(request.method == 'POST'):
+        # Get data from request
+        data = request.get_json()
+        courriel = data['courriel']
+        nom = data['nom']
+        prenom = data['prenom']
+        password = data['password']
+
+        # Create cursor
+        cur = mysql.connection.cursor()
+
+        # Check if user already exists
+        result = cur.execute(
+            "SELECT * FROM users WHERE courriel = %s", [courriel])
+
+        if result > 0:
+            return jsonify({'message': 'Utilisateur déjà existant'})
+
+        # Create new user
+        cur.execute("INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUES (md5(%s), sha1(md5(%s)), %s, %s, %s, %s)",
+                    (nom, nom, courriel, nom, prenom, password))
+
+        # Commit to DB
+        mysql.connection.commit()
+
+        # Return user info
+        cur.execute(
+            "SELECT JSON_ARRAY(JSON_OBJECT('courriel', courriel, 'nom', nom, 'prenom', prenom, 'token', token, 'id', id_utilisateur)) FROM utilisateur WHERE courriel = %s", [courriel])
+        utilisateur = cur.fetchall()
+        return jsonify(utilisateur)
+
+
+@app.route('/tokenInfo', methods=['GET'])
+def tokenInfo():
+    if(request.method == 'GET'):
+        # Get token from request
+        token = request.args.get('token')
+
+        # Create cursor
+        cur = mysql.connection.cursor()
+
+        # Get user by username
+        result = cur.execute(
+            "SELECT * FROM utilisateur WHERE token = %s", [token])
+
+        if result > 0:
+            # Get stored hash
+            data = cur.fetchone()
+            token_hash = data['token']
+
+            # Compare tokens
+            if(token_hash == token):
+                cur.execute(
+                    "SELECT JSON_ARRAY(JSON_OBJECT('courriel', courriel, 'nom', nom, 'prenom', prenom, 'token', token, 'id', id_utilisateur)) FROM utilisateur WHERE token = %s", [token])
+                utilisateur = cur.fetchall()
+                return jsonify(utilisateur)
+            else:
+                return jsonify({'message': 'Token incorrect'})
+        else:
+            return jsonify({'message': 'Utilisateur non trouvé'})
+
+
 @app.route('/parkingList', methods=['GET'])
 def parkingList():
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
-        cur.execute("SELECT JSON_ARRAY(JSON_OBJECT('id', id_stationnement, 'prix', prix, 'longueur', longueur, 'largeur', largeur, 'hauteur', hauteur, 'emplacement', emplacement, 'jours_d_avance', jours_d_avance, 'date_fin', date_fin)) FROM stationnement")
+        cur.execute("SELECT JSON_OBJECT('id', id_stationnement, 'prix', prix, 'longueur', longueur, 'largeur', largeur, 'hauteur', hauteur, 'emplacement', emplacement, 'jours_d_avance', jours_d_avance, 'date_fin', date_fin) FROM stationnement")
         parking = cur.fetchall()
         return jsonify(parking)
 
