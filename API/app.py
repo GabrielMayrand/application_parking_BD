@@ -120,8 +120,8 @@ def parkingList():
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM stationnement")
-        parking = cur.fetchall()
-        parking = [dict(row) for row in parking]
+        parking = [dict((cur.description[i][0], value)
+                        for i, value in enumerate(row)) for row in cur.fetchall()]
         return json.dumps(parking)
 
 
