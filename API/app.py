@@ -18,14 +18,43 @@ def home():
         return 'API is running'
 
 
-#################### login and all
+@app.route('/login', methods=['POST'])
+def login():
+    if(request.method == 'POST'):
+        # Get data from request
+        data = request.get_json()
+        courriel = data['courriel']
+        password = data['password']
+
+        # Create cursor
+        cur = mysql.connection.cursor()
+
+        # Get user by username
+        result = cur.execute(
+            "SELECT * FROM users WHERE courriel = %s", [courriel])
+
+        if result > 0:
+            # Get stored hash
+            data = cur.fetchone()
+            password_hash = data['password']
+
+            # Compare passwords
+            if(password_hash == password):
+                cur.execute(
+                    "SELECT JSON_ARRAY(JSON_OBJECT('courriel', courriel, 'nom', nom, 'prenom', prenom, 'token', token, 'id', id_utilisateur)) FROM utilisateur WHERE courriel = %s", [courriel])
+                utilisateur = cur.fetchall()
+                return jsonify(utilisateur)
+            else:
+                return jsonify({'message': 'Mot de passe incorrect'})
+        else:
+            return jsonify({'message': 'Utilisateur non trouvé'})
 
 
 @app.route('/parkingList', methods=['GET'])
 def parkingList():
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM stationnement")
+        cur.execute("SELECT JSON_ARRAY(JSON_OBJECT('id', id_stationnement, 'prix', prix, 'longueur', longueur, 'largeur', largeur, 'hauteur', hauteur, 'emplacement', emplacement, 'jours_d_avance', jours_d_avance, 'date_fin', date_fin)) FROM stationnement")
         parking = cur.fetchall()
         return jsonify(parking)
 
@@ -50,7 +79,7 @@ def parking(id):
         cur.execute(
             "INSERT INTO Locateur (id_utilisateur, cote) VALUE (%s, NULL)", [id])
         mysql.connection.commit()
-        return 'Parking created'
+        return 'Parking ajoutée'
     elif(request.method == 'PUT'):
         cur = mysql.connection.cursor()
         cur.execute("UPDATE stationnement SET prix=%s, longueur=%s, largeur=%s, hauteur=%s, emplacement=%s, jours_d_avance=%s, date_fin=%s WHERE id_stationnement=%s",
@@ -66,10 +95,10 @@ def parking(id):
         cur.execute(
             "DELETE FROM possede WHERE id_stationnement=%s", [id])
         mysql.connection.commit()
-        return 'Parking deleted'
+        return 'Parking supprimée'
 
 
-# parking filter
+# parking filter et pas filter
 
 
 @app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/reserver', methods=['POST'])
@@ -121,7 +150,7 @@ def utilisateur_id(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
         utilisateurs = cur.execute(
-            "SELECT courriel, nom, prenom, id_utilisateur FROM utilisateur WHERE id_utilisateur=%s", [id])
+            "SELECT IF (%s IN (SELECT id_utilisateur FROM Locateur), (SELECT * FROM Locateur WHERE id_utilisateur = %s), (SELECT * FROM Locataire WHERE id_utilisateur = %s))", (id, id, id))
         utilisateurs = cur.fetchall()
         return jsonify(utilisateurs)
     if(request.method == 'PUT'):

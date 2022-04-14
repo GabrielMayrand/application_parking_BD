@@ -131,3 +131,8 @@ INSERT INTO LOUER (id_utilisateur, id_plage_horaire) VALUES (@id3, 2), (@id3, 3)
 INSERT INTO Retirer (id_utilisateur, id_plage_horaire) VALUES (@id2, 1);
 
 INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUES (1, 3), (2, 3), (3, 1), (4, 2), (5, 1), (6, 2);
+
+
+SELECT * FROM (SELECT * FROM Utilisateur WHERE id_utilisateur) AS infos
+LEFT JOIN (SELECT IF (md5('Blo') IN (SELECT id_utilisateur FROM Locateur),
+    (SELECT cote FROM Locateur WHERE id_utilisateur = md5('Blo')), NULL)) AS cote;

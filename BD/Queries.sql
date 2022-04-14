@@ -1,7 +1,6 @@
 --post login
-SELECT IF(mot_de_passe = '$mdp',
-    JSON_ARRAY(JSON_OBJECT('courriel', courriel, 'nom', nom, 'prenom', prenom, 'token', token, 'id', id_utilisateur)),
-    null) from utilisateur where courriel = '$courriel';
+SELECT JSON_ARRAY(JSON_OBJECT('courriel', courriel, 'nom', nom, 'prenom', prenom, 'token', token, 'id', id_utilisateur))
+FROM utilisateur WHERE courriel = '$courriel';
 
 --post signup
 INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe)
@@ -93,9 +92,13 @@ DELETE FROM Reservation WHERE id_plage_horaire = '$id_plage_horaire';
 DELETE FROM Plage_horaire WHERE id_plage_horaire = '$id_plage_horaire';
 DELETE FROM possede WHERE id_stationnement = '$id_stationnement' AND id_plage_horaire = '$id_plage_horaire';
 
---get user by id and cote from Locateur                   ###############################################
-SELECT JSON_ARRAY(JSON_OBJECT('email', U.email, 'nom', U.nom, 'prenom', U.prenom, 'id', U.id_utilisateur, 'cote', L.cote)) 
-FROM Utilisateur U, Locateur L WHERE U.id_utilisateur = '$id_utilisateur' AND L.id_utilisateur = '$id_utilisateur';
+--get user by id and cote from Locateur
+SELECT * 
+FROM (SELECT * FROM Utilisateur WHERE id_utilisateur) AS infos
+LEFT JOIN (SELECT IF (id_utilisateur IN (SELECT id_utilisateur FROM Locateur), cote, NULL)) AS cote
+SELECT IF ('$id_utilisateur' IN (SELECT id_utilisateur FROM Locateur),
+        (SELECT * FROM Locateur WHERE id_utilisateur = '$id_utilisateur'),
+        (SELECT * FROM Locataire WHERE id_utilisateur = '$id_utilisateur'));
 
 --put user by id
 UPDATE utilisateur SET courriel = '$courriel', nom = '$nom', prenom = '$prenom', mot_de_passe = '$mot_de_passe'
