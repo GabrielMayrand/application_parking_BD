@@ -41,7 +41,7 @@ def login():
             # Compare passwords
             if(password_hash == password):
                 cur.execute(
-                    "SELECT JSON_ARRAY(JSON_OBJECT('courriel', courriel, 'nom', nom, 'prenom', prenom, 'token', token, 'id', id_utilisateur)) FROM utilisateur WHERE courriel = %s", [courriel])
+                    "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courriel = %s", [courriel])
                 utilisateur = cur.fetchall()
                 return jsonify(utilisateur)
             else:
@@ -79,7 +79,7 @@ def signup():
 
         # Return user info
         cur.execute(
-            "SELECT JSON_ARRAY(JSON_OBJECT('courriel', courriel, 'nom', nom, 'prenom', prenom, 'token', token, 'id', id_utilisateur)) FROM utilisateur WHERE courriel = %s", [courriel])
+            "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courriel = %s", [courriel])
         utilisateur = cur.fetchall()
         return jsonify(utilisateur)
 
@@ -105,7 +105,7 @@ def tokenInfo():
             # Compare tokens
             if(token_hash == token):
                 cur.execute(
-                    "SELECT JSON_ARRAY(JSON_OBJECT('courriel', courriel, 'nom', nom, 'prenom', prenom, 'token', token, 'id', id_utilisateur)) FROM utilisateur WHERE token = %s", [token])
+                    "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = %s", [token])
                 utilisateur = cur.fetchall()
                 return jsonify(utilisateur)
             else:
@@ -118,9 +118,9 @@ def tokenInfo():
 def parkingList():
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
-        cur.execute("SELECT JSON_OBJECT('id', id_stationnement, 'prix', prix, 'longueur', longueur, 'largeur', largeur, 'hauteur', hauteur, 'emplacement', emplacement, 'jours_d_avance', jours_d_avance, 'date_fin', date_fin) FROM stationnement")
+        cur.execute("SELECT * FROM stationnement")
         parking = cur.fetchall()
-        return jsonify(parking)
+        return parking
 
 
 # parkinglist filters
