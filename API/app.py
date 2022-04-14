@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_mysqldb import MySQL
+import json
 
 app = Flask(__name__)
 
@@ -120,9 +121,8 @@ def parkingList():
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM stationnement")
         parking = cur.fetchall()
-        # make sure data is a list of dictionaries
         parking = [dict(row) for row in parking]
-        return parking
+        return json.dumps(parking)
 
 
 # parkinglist filters
