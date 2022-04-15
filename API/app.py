@@ -147,13 +147,13 @@ def tokenInfo():
 @app.route('/parkingList', methods=['GET'])
 def parkingList():
     if(request.method == 'GET'):
-        prixMin = request.args.get('prix_min')
-        prixMax = request.args.get('prix_max')
+        prixMin = request.args.get('prixMin')
+        prixMax = request.args.get('prixMax')
         longeur = request.args.get('longeur')
         largeur = request.args.get('largeur')
         hauteur = request.args.get('hauteur')
-        joursAvance = request.args.get('jours_d_avance')
-        date_fin = request.args.get('date_fin')
+        joursAvance = request.args.get('joursdavance')
+        date_fin = request.args.get('dateFin')
         cur = mysql.connection.cursor()
         if prixMin is not None and prixMax is not None:
             cur.execute(
