@@ -1,3 +1,4 @@
+import collections
 from flask import Flask, jsonify, request
 from flask_mysqldb import MySQL
 
@@ -120,6 +121,18 @@ def parkingList():
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM stationnement")
         parking = cur.fetchall()
+        objParking = []
+        for row in parking:
+            d = collections.OrderedDict()
+            d['id_stationnement'] = str(row[0])
+            d['prix'] = str(row[1])
+            d['longueur'] = str(row[2])
+            d['largeur'] = str(row[3])
+            d['hauteur'] = str(row[4])
+            d['emplacement'] = str(row[5])
+            d['jours_d_avance'] = str(row[6])
+            d['date_fin'] = str(row[7])
+            objParking.append(d)
         return jsonify(parking)
 
 
