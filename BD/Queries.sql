@@ -1,45 +1,33 @@
 --post login
-SELECT JSON_ARRAY(JSON_OBJECT('courriel', courriel, 'nom', nom, 'prenom', prenom, 'token', token, 'id', id_utilisateur))
-FROM utilisateur WHERE courriel = '$courriel';
+SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courriel = '$courriel';
 
 --post signup
 INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe)
     VALUE (md5('$nom'), sha1(md5('$nom')), '$courriel', '$nom', '$prenom', '$mdp');
-SELECT JSON_ARRAY(JSON_OBJECT('courriel', courriel, 'nom', nom, 'prenom', prenom, 'id', id_utilisateur))
-    FROM utilisateur WHERE id_utilisateur = md5('$nom');
+SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE id_utilisateur = md5('$nom');
 
 --get tokenInfo
-SELECT JSON_ARRAY(JSON_OBJECT('courriel', courriel, 'nom', nom, 'prenom', prenom, 'token', token, 'id', id_utilisateur))
-    FROM utilisateur WHERE token = '$token';
+SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = '$token';
 
 --get parkingList
-SELECT JSON_ARRAY(JSON_OBJECT('id', id_stationnement, 'prix', prix, 'longueur', longueur, 'largeur', largeur, 'hauteur',
-    hauteur, 'emplacement', emplacement, 'jours_d_avance', jours_d_avance, 'date_fin', date_fin)) FROM stationnement;
+SELECT * FROM stationnement;
 
 --get parkingList by filters
 --price
-SELECT JSON_ARRAY(JSON_OBJECT('id', id_stationnement, 'prix', prix, 'longueur', longueur, 'largeur', largeur, 'hauteur',
-    hauteur, 'emplacement', emplacement, 'jours_d_avance', jours_d_avance, 'date_fin', date_fin)) FROM stationnement
-    WHERE $prix_min <= prix AND $prix_max >= prix;
+SELECT * FROM stationnement WHERE $prix_min <= prix AND $prix_max >= prix;
 
 --dimension
-SELECT JSON_ARRAY(JSON_OBJECT('id', id_stationnement, 'prix', prix, 'longueur', longueur, 'largeur', largeur, 'hauteur',
-    hauteur, 'emplacement', emplacement, 'jours_d_avance', jours_d_avance, 'date_fin', date_fin)) FROM stationnement
-    WHERE longueur >= $longueur AND largeur >= $largeur AND hauteur >= $hauteur;
+SELECT * FROM stationnement WHERE longueur >= $longueur AND largeur >= $largeur AND hauteur >= $hauteur;
 
 --jour davance
-SELECT JSON_ARRAY(JSON_OBJECT('id', id_stationnement, 'prix', prix, 'longueur', longueur, 'largeur', largeur, 'hauteur',
-    hauteur, 'emplacement', emplacement, 'jours_d_avance', jours_d_avance, 'date_fin', date_fin)) FROM stationnement
-    WHERE jours_d_avance >= $jours_d_avance;
+SELECT * FROM stationnement WHERE jours_d_avance >= $jours_d_avance;
 
 --date de fin
-SELECT JSON_ARRAY(JSON_OBJECT('id', id_stationnement, 'prix', prix, 'longueur', longueur, 'largeur', largeur, 'hauteur',
-    hauteur, 'emplacement', emplacement, 'jours_d_avance', jours_d_avance, 'date_fin', date_fin)) FROM stationnement
+SELECT * FROM stationnement
     WHERE date_fin >= $date;
 
 --get parkingListId
-SELECT JSON_ARRAY(JSON_OBJECT('id', id_stationnement, 'prix', prix, 'longueur', longueur, 'largeur', largeur, 'hauteur',
-    hauteur, 'emplacement', emplacement, 'jours_d_avance', jours_d_avance, 'date_fin', date_fin)) FROM stationnement
+SELECT * FROM stationnement
     WHERE id_stationnement = '$id_stationnement';
 
 --post parking
@@ -60,13 +48,11 @@ DELETE FROM gerer WHERE id_stationnement = '$id_stationnement';
 DELETE FROM Possede WHERE id_stationnement = '$id_stationnement';
 
 --get plageHoraire by stationnement_id
-SELECT JSON_ARRAY(JSON_OBJECT('id', id_plage_horaire, 'date_arrivee', date_arrivee, 'date_depart', date_depart))
-    FROM Plage_horaire WHERE id_plage_horaire IN
+SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
                                   (SELECT id_plage_horaire FROM possede WHERE id_stationnement = '$id_stationnement');
 
 --get plageHoraire by stationnement_id and jour
-SELECT JSON_ARRAY(JSON_OBJECT('id', id_plage_horaire, 'date_arrivee', date_arrivee, 'date_depart', date_depart))
-    FROM Plage_horaire WHERE id_plage_horaire IN
+SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
                              (SELECT id_plage_horaire FROM possede WHERE id_stationnement = '$id_stationnement')
                               AND '$date' BETWEEN date_arrivee AND date_depart;
 
@@ -108,15 +94,11 @@ UPDATE utilisateur SET courriel = '$courriel', nom = '$nom', prenom = '$prenom',
 DELETE FROM Utilisateur WHERE id_utilisateur = '$id_utilisateur';
 
 --get parking by user id
-SELECT JSON_ARRAY(JSON_OBJECT('id', id_stationnement, 'prix', prix, 'longueur', longueur, 'largeur', largeur, 'hauteur',
-    hauteur, 'emplacement', emplacement, 'jours_d_avance', jours_d_avance, 'date_fin', date_fin))
-    FROM stationnement WHERE id_stationnement IN
+SELECT * FROM stationnement WHERE id_stationnement IN
                                   (SELECT id_stationnement FROM gerer WHERE id_utilisateur = '$id_utilisateur');
 
 --get vehicule by user id
-SELECT JSON_ARRAY(JSON_OBJECT('plaque', plaque, 'modele', modele, 'couleur', couleur, 'longueur', longueur, 'largeur',
-    largeur, 'hauteur', hauteur))
-    FROM vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_utilisateur = '$id_utilisateur');
+SELECT * FROM vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_utilisateur = '$id_utilisateur');
 
 --post vehicule by user id
 INSERT INTO Vehicule (plaque, modele, couleur, longueur, largeur, hauteur)

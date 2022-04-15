@@ -214,26 +214,12 @@ def parking(id):
         return 'Parking supprimée'
 
 
-@app.route('/parking/<int:parkingId>/plageHoraires/', methods=['GET'])
+# filters
+@app.route('/parking/<int:parkingId>/plageHoraires', methods=['GET'])
 def plageHoraires(parkingId):
     if(request.method == 'GET'):
-        cur = mysql.connection.cursor()
-        cur.execute(
-            "SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement = %s)", [parkingId])
-        plageHoraires = cur.fetchall()
-        objPlageHoraires = []
-        for row in plageHoraires:
-            d = collections.OrderedDict()
-            d['id_plage_horaires'] = row[0]
-            d['date_arrivee'] = row[1]
-            d['date_depart'] = row[2]
-            objPlageHoraires.append(d)
-        return jsonify(objPlageHoraires)
-
-
-@app.route('/parking/<int:parkingId>/plageHoraires/<int:debut>/<int:fin>', methods=['GET'])
-def parkingPlageHoraires(parkingId, debut, fin):
-    if(request.method == 'GET'):
+        debut = request.args.get('debut')
+        fin = request.args.get('fin')
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s) AND %s >= date_arrivee AND %s <= date_depart", (parkingId, debut, fin))
         plageHoraires = cur.fetchall()
@@ -295,6 +281,7 @@ def deletePlageHoraire(parkingId, plageHoraire):
 def utilisateur_id(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
+        ####################################
         utilisateur = cur.execute(
             "SELECT IF (%s IN (SELECT id_utilisateur FROM Locateur), (SELECT * FROM Locateur WHERE id_utilisateur = %s), (SELECT * FROM Locataire WHERE id_utilisateur = %s))", (id, id, id))
         utilisateur = cur.fetchall()
