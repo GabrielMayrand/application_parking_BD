@@ -223,7 +223,18 @@ def plageHoraires(parkingId):
         debut = request.args.get('debut')
         fin = request.args.get('fin')
         cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s) AND %s >= date_arrivee AND %s <= date_depart", (parkingId, debut, fin))
+        if debut is not None and fin is not None:
+            cur.execute(
+                "SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s) AND %s >= date_arrivee AND %s <= date_depart", (parkingId, debut, fin))
+        elif debut is not None and fin is None:
+            cur.execute(
+                "SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s) AND %s >= date_arrivee", (parkingId, debut))
+        elif debut is None and fin is not None:
+            cur.execute(
+                "SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s) AND %s <= date_depart", (parkingId, fin))
+        else:
+            cur.execute(
+                "SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s)", (parkingId))
         plageHoraires = cur.fetchall()
         objPlageHoraires = []
         for row in plageHoraires:
