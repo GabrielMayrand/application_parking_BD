@@ -124,14 +124,14 @@ def parkingList():
         objParking = []
         for row in parking:
             d = collections.OrderedDict()
-            d['id_stationnement'] = str(row[0])
-            d['prix'] = str(row[1])
-            d['longueur'] = str(row[2])
-            d['largeur'] = str(row[3])
-            d['hauteur'] = str(row[4])
-            d['emplacement'] = str(row[5])
-            d['jours_d_avance'] = str(row[6])
-            d['date_fin'] = str(row[7])
+            d['id_stationnement'] = row[0]
+            d['prix'] = row[1]
+            d['longueur'] = row[2]
+            d['largeur'] = row[3]
+            d['hauteur'] = row[4]
+            d['emplacement'] = row[5]
+            d['jours_d_avance'] = row[6]
+            d['date_fin'] = row[7]
             objParking.append(d)
         return jsonify(parking)
 
