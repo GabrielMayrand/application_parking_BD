@@ -1,3 +1,4 @@
+import collections
 from flask import Flask, jsonify, request
 from flask_mysqldb import MySQL
 
@@ -18,7 +19,127 @@ def home():
         return 'API is running'
 
 
-#################### login and all
+@app.route('/login', methods=['POST'])
+def login():
+    if(request.method == 'POST'):
+        # Get data from request
+        data = request.get_json()
+        courriel = data['courriel']
+        password = data['password']
+
+        # Create cursor
+        cur = mysql.connection.cursor()
+
+        # Get user by username
+        result = cur.execute(
+            "SELECT * FROM users WHERE courriel = %s", [courriel])
+
+        if result > 0:
+            # Get stored hash
+            data = cur.fetchone()
+            password_hash = data['password']
+
+            # Compare passwords
+            if(password_hash == password):
+                cur.execute(
+                    "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courriel = %s", [courriel])
+                utilisateur = cur.fetchall()
+                objUtilisateur = []
+                for row in utilisateur:
+                    d = collections.OrderedDict()
+                    d['courriel'] = row[0]
+                    d['nom'] = row[1]
+                    d['prenom'] = row[2]
+                    d['token'] = row[3]
+                    d['id_utilisateur'] = row[4]
+                    objUtilisateur.append(d)
+                return jsonify(objUtilisateur)
+            else:
+                return jsonify({'message': 'Mot de passe incorrect'})
+        else:
+            return jsonify({'message': 'Utilisateur non trouvé'})
+
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    if(request.method == 'POST'):
+        # Get data from request
+        data = request.get_json()
+        courriel = data['courriel']
+        nom = data['nom']
+        prenom = data['prenom']
+        password = data['password']
+
+        # Create cursor
+        cur = mysql.connection.cursor()
+
+        # Check if user already exists
+        result = cur.execute(
+            "SELECT * FROM users WHERE courriel = %s", [courriel])
+
+        if result > 0:
+            return jsonify({'message': 'Utilisateur déjà existant'})
+
+        # Create new user
+        cur.execute("INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUES (md5(%s), sha1(md5(%s)), %s, %s, %s, %s)",
+                    (nom, nom, courriel, nom, prenom, password))
+
+        # Commit to DB
+        mysql.connection.commit()
+
+        # Return user info
+        cur.execute(
+            "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courriel = %s", [courriel])
+        utilisateur = cur.fetchall()
+        objUtilisateur = []
+        for row in utilisateur:
+            d = collections.OrderedDict()
+            d['courriel'] = row[0]
+            d['nom'] = row[1]
+            d['prenom'] = row[2]
+            d['token'] = row[3]
+            d['id_utilisateur'] = row[4]
+            objUtilisateur.append(d)
+        return jsonify(objUtilisateur)
+
+
+@app.route('/tokenInfo', methods=['GET'])
+def tokenInfo():
+    if(request.method == 'GET'):
+        # Get token from request
+        token = request.args.get('token')
+
+        # Create cursor
+        cur = mysql.connection.cursor()
+
+        # Get user by username
+        result = cur.execute(
+            "SELECT * FROM utilisateur WHERE token = %s", [token])
+
+        if result > 0:
+            # Get stored hash
+            data = cur.fetchone()
+            token_hash = data['token']
+
+            # Compare tokens
+            if(token_hash == token):
+                cur.execute(
+                    "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = %s", [token])
+                utilisateur = cur.fetchall()
+                objUtilisateur = []
+                for row in utilisateur:
+                    d = collections.OrderedDict()
+                    d['courriel'] = row[0]
+                    d['nom'] = row[1]
+                    d['prenom'] = row[2]
+                    d['token'] = row[3]
+                    d['id_utilisateur'] = row[4]
+                    objUtilisateur.append(d)
+                return jsonify(objUtilisateur)
+            else:
+                return jsonify({'message': 'Token incorrect'})
+        else:
+            return jsonify({'message': 'Utilisateur non trouvé'})
 
 
 @app.route('/parkingList', methods=['GET'])
@@ -27,7 +148,19 @@ def parkingList():
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM stationnement")
         parking = cur.fetchall()
-        return jsonify(parking)
+        objParking = []
+        for row in parking:
+            d = collections.OrderedDict()
+            d['id_stationnement'] = row[0]
+            d['prix'] = row[1]
+            d['longueur'] = row[2]
+            d['largeur'] = row[3]
+            d['hauteur'] = row[4]
+            d['emplacement'] = row[5]
+            d['jours_d_avance'] = row[6]
+            d['date_fin'] = row[7]
+            objParking.append(d)
+        return jsonify(objParking)
 
 
 # parkinglist filters
@@ -40,7 +173,19 @@ def parking(id):
         cur.execute(
             "SELECT * FROM stationnement WHERE id_stationnement=%s", [id])
         parking = cur.fetchall()
-        return jsonify(parking)
+        objParking = []
+        for row in parking:
+            d = collections.OrderedDict()
+            d['id_stationnement'] = row[0]
+            d['prix'] = row[1]
+            d['longueur'] = row[2]
+            d['largeur'] = row[3]
+            d['hauteur'] = row[4]
+            d['emplacement'] = row[5]
+            d['jours_d_avance'] = row[6]
+            d['date_fin'] = row[7]
+            objParking.append(d)
+        return jsonify(objParking)
     elif(request.method == 'POST'):
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO stationnement (id_stationnement, prix, longueur, largeur, hauteur, emplacement, jours_d_avance, date_fin) VALUE (%s, %s, %s, %s, %s, %s, %s, %s)",
@@ -50,7 +195,7 @@ def parking(id):
         cur.execute(
             "INSERT INTO Locateur (id_utilisateur, cote) VALUE (%s, NULL)", [id])
         mysql.connection.commit()
-        return 'Parking created'
+        return 'Parking ajoutée'
     elif(request.method == 'PUT'):
         cur = mysql.connection.cursor()
         cur.execute("UPDATE stationnement SET prix=%s, longueur=%s, largeur=%s, hauteur=%s, emplacement=%s, jours_d_avance=%s, date_fin=%s WHERE id_stationnement=%s",
@@ -66,10 +211,26 @@ def parking(id):
         cur.execute(
             "DELETE FROM possede WHERE id_stationnement=%s", [id])
         mysql.connection.commit()
-        return 'Parking deleted'
+        return 'Parking supprimée'
 
 
-# parking filter
+# filters
+@app.route('/parking/<int:parkingId>/plageHoraires', methods=['GET'])
+def plageHoraires(parkingId):
+    if(request.method == 'GET'):
+        debut = request.args.get('debut')
+        fin = request.args.get('fin')
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s) AND %s >= date_arrivee AND %s <= date_depart", (parkingId, debut, fin))
+        plageHoraires = cur.fetchall()
+        objPlageHoraires = []
+        for row in plageHoraires:
+            d = collections.OrderedDict()
+            d['id_plage_horaires'] = row[0]
+            d['date_arrivee'] = row[1]
+            d['date_depart'] = row[2]
+            objPlageHoraires.append(d)
+        return jsonify(objPlageHoraires)
 
 
 @app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/reserver', methods=['POST'])
@@ -120,10 +281,20 @@ def deletePlageHoraire(parkingId, plageHoraire):
 def utilisateur_id(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
-        utilisateurs = cur.execute(
-            "SELECT courriel, nom, prenom, id_utilisateur FROM utilisateur WHERE id_utilisateur=%s", [id])
-        utilisateurs = cur.fetchall()
-        return jsonify(utilisateurs)
+        ####################################
+        utilisateur = cur.execute(
+            "SELECT IF (%s IN (SELECT id_utilisateur FROM Locateur), (SELECT * FROM Locateur WHERE id_utilisateur = %s), (SELECT * FROM Locataire WHERE id_utilisateur = %s))", (id, id, id))
+        utilisateur = cur.fetchall()
+        objUtilisateur = []
+        for row in utilisateur:
+            d = collections.OrderedDict()
+            d['courriel'] = row[0]
+            d['nom'] = row[1]
+            d['prenom'] = row[2]
+            d['id_utilisateur'] = row[4]
+            d['cote'] = row[5]
+            objUtilisateur.append(d)
+        return jsonify(objUtilisateur)
     if(request.method == 'PUT'):
         cur = mysql.connection.cursor()
         cur.execute("UPDATE utilisateur SET nom=%s, prenom=%s, email=%s, mot_de_passe=%s WHERE id_utilisateur=%s",
@@ -141,20 +312,42 @@ def utilisateur_id(id):
 def utilisateur_id_parkingList(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
-        utilisateurs = cur.execute(
+        parking = cur.execute(
             "SELECT * FROM stationnement WHERE id_stationnement IN (SELECT id_stationnement FROM gerer WHERE id_utilisateur = %s)", [id])
-        utilisateurs = cur.fetchall()
-        return jsonify(utilisateurs)
+        parking = cur.fetchall()
+        objParking = []
+        for row in parking:
+            d = collections.OrderedDict()
+            d['id_stationnement'] = row[0]
+            d['prix'] = row[1]
+            d['longueur'] = row[2]
+            d['largeur'] = row[3]
+            d['hauteur'] = row[4]
+            d['emplacement'] = row[5]
+            d['jours_d_avance'] = row[6]
+            d['date_fin'] = row[7]
+            objParking.append(d)
+        return jsonify(objParking)
 
 
 @app.route('/user/<int:id>/cars', methods=['GET', 'POST'])
 def utilisateur_id_cars(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
-        utilisateurs = cur.execute(
+        vehicule = cur.execute(
             "SELECT * FROM vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_utilisateur = %s", [id])
-        utilisateurs = cur.fetchall()
-        return jsonify(utilisateurs)
+        vehicule = cur.fetchall()
+        objvehicule = []
+        for row in vehicule:
+            d = collections.OrderedDict()
+            d['plaque'] = row[0]
+            d['modele'] = row[1]
+            d['couleur'] = row[2]
+            d['longueur'] = row[3]
+            d['largeur'] = row[4]
+            d['hauteur'] = row[5]
+            objvehicule.append(d)
+        return jsonify(objvehicule)
     if(request.method == 'POST'):
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO Vehicule (plaque, modele, couleur, longueur, largeur, hauteur) VALUE (%s, %s, %s, %s, %s, %s)",
