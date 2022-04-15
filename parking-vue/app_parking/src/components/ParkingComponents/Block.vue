@@ -1,9 +1,12 @@
 <template>
-    <button class="button">
+    <div class="card">
         <div>
-            {{block.startTime}} - {{block.endTime}}
+            {{block.startTime}}
         </div>
-    </button>
+        <div>
+            {{block.endTime}}
+        </div>
+    </div>
 </template>
 
 <script>
@@ -20,17 +23,14 @@ export default {
         plagesBlock: Array,
     },
     methods :{
-        // getPlage(){
-        //     foreach (plage in plagesBlock);{
-        //         if (plage.startTime == block.startTime && plage.endTime == block.endTime){
-        //             plage = plageBlock;
-        //         }
-        //     }
-        // },
-    },
-    created() {
-        //this.getPlage();
-        console.log(this.plagesBlock);
-    }    
+        getPlage(){
+            this.plagesBlock.every(plage => {
+                if(plage.startTime == this.block.startTime){
+                    this.plageBlock = plage;
+                    return false;
+                }
+            });
+        },
+    }
 }
 </script>

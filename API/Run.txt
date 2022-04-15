@@ -2,3 +2,6 @@
 env\Scripts\activate.bat
 
 flask run
+
+## run in https
+flask run --cert=adhoc

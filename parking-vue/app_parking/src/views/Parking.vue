@@ -31,7 +31,7 @@ export default {
                 landlordId: 45,
             }
         },
-        getPlagesHoraire() {
+        getPlagesHoraire() {        
             this.plagesHoraire = [
                 {
                     id: 0,
