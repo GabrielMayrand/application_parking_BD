@@ -143,11 +143,23 @@ def tokenInfo():
             return jsonify({'message': 'Utilisateur non trouvé'})
 
 
+# parkinglist filters
 @app.route('/parkingList', methods=['GET'])
 def parkingList():
     if(request.method == 'GET'):
+        prixMin = request.args.get('prix_min')
+        prixMax = request.args.get('prix_max')
+        longeur = request.args.get('longeur')
+        largeur = request.args.get('largeur')
+        hauteur = request.args.get('hauteur')
+        joursAvance = request.args.get('jours_d_avance')
+        date_fin = request.args.get('date_fin')
         cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM stationnement")
+        if prixMin is not None and prixMax is not None:
+            cur.execute(
+                "SELECT * FROM stationnement WHERE %s <= prix AND %s >= prix;", (prixMin, prixMax))
+        else:
+            cur.execute("SELECT * FROM stationnement")
         parking = cur.fetchall()
         objParking = []
         for row in parking:
@@ -162,9 +174,6 @@ def parkingList():
             d['date_fin'] = row[7]
             objParking.append(d)
         return jsonify(objParking)
-
-
-# parkinglist filters
 
 
 @app.route('/parking/<int:id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
