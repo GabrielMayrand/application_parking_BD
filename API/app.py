@@ -44,7 +44,16 @@ def login():
                 cur.execute(
                     "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courriel = %s", [courriel])
                 utilisateur = cur.fetchall()
-                return jsonify(utilisateur)
+                objUtilisateur = []
+                for row in utilisateur:
+                    d = collections.OrderedDict()
+                    d['courriel'] = row[0]
+                    d['nom'] = row[1]
+                    d['prenom'] = row[2]
+                    d['token'] = row[3]
+                    d['id_utilisateur'] = row[4]
+                    objUtilisateur.append(d)
+                return jsonify(objUtilisateur)
             else:
                 return jsonify({'message': 'Mot de passe incorrect'})
         else:
@@ -82,7 +91,16 @@ def signup():
         cur.execute(
             "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courriel = %s", [courriel])
         utilisateur = cur.fetchall()
-        return jsonify(utilisateur)
+        objUtilisateur = []
+        for row in utilisateur:
+            d = collections.OrderedDict()
+            d['courriel'] = row[0]
+            d['nom'] = row[1]
+            d['prenom'] = row[2]
+            d['token'] = row[3]
+            d['id_utilisateur'] = row[4]
+            objUtilisateur.append(d)
+        return jsonify(objUtilisateur)
 
 
 @app.route('/tokenInfo', methods=['GET'])
@@ -108,7 +126,16 @@ def tokenInfo():
                 cur.execute(
                     "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = %s", [token])
                 utilisateur = cur.fetchall()
-                return jsonify(utilisateur)
+                objUtilisateur = []
+                for row in utilisateur:
+                    d = collections.OrderedDict()
+                    d['courriel'] = row[0]
+                    d['nom'] = row[1]
+                    d['prenom'] = row[2]
+                    d['token'] = row[3]
+                    d['id_utilisateur'] = row[4]
+                    objUtilisateur.append(d)
+                return jsonify(objUtilisateur)
             else:
                 return jsonify({'message': 'Token incorrect'})
         else:
@@ -133,7 +160,7 @@ def parkingList():
             d['jours_d_avance'] = row[6]
             d['date_fin'] = row[7]
             objParking.append(d)
-        return jsonify(parking)
+        return jsonify(objParking)
 
 
 # parkinglist filters
@@ -146,7 +173,19 @@ def parking(id):
         cur.execute(
             "SELECT * FROM stationnement WHERE id_stationnement=%s", [id])
         parking = cur.fetchall()
-        return jsonify(parking)
+        objParking = []
+        for row in parking:
+            d = collections.OrderedDict()
+            d['id_stationnement'] = row[0]
+            d['prix'] = row[1]
+            d['longueur'] = row[2]
+            d['largeur'] = row[3]
+            d['hauteur'] = row[4]
+            d['emplacement'] = row[5]
+            d['jours_d_avance'] = row[6]
+            d['date_fin'] = row[7]
+            objParking.append(d)
+        return jsonify(objParking)
     elif(request.method == 'POST'):
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO stationnement (id_stationnement, prix, longueur, largeur, hauteur, emplacement, jours_d_avance, date_fin) VALUE (%s, %s, %s, %s, %s, %s, %s, %s)",
@@ -175,7 +214,37 @@ def parking(id):
         return 'Parking supprimée'
 
 
-# parking filter et pas filter
+@app.route('/parking/<int:parkingId>/plageHoraires/', methods=['GET'])
+def plageHoraires(parkingId):
+    if(request.method == 'GET'):
+        cur = mysql.connection.cursor()
+        cur.execute(
+            "SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement = %s)", [parkingId])
+        plageHoraires = cur.fetchall()
+        objPlageHoraires = []
+        for row in plageHoraires:
+            d = collections.OrderedDict()
+            d['id_plage_horaires'] = row[0]
+            d['date_arrivee'] = row[1]
+            d['date_depart'] = row[2]
+            objPlageHoraires.append(d)
+        return jsonify(objPlageHoraires)
+
+
+@app.route('/parking/<int:parkingId>/plageHoraires/<int:debut>/<int:fin>', methods=['GET'])
+def parkingPlageHoraires(parkingId, debut, fin):
+    if(request.method == 'GET'):
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s) AND %s >= date_arrivee AND %s <= date_depart", (parkingId, debut, fin))
+        plageHoraires = cur.fetchall()
+        objPlageHoraires = []
+        for row in plageHoraires:
+            d = collections.OrderedDict()
+            d['id_plage_horaires'] = row[0]
+            d['date_arrivee'] = row[1]
+            d['date_depart'] = row[2]
+            objPlageHoraires.append(d)
+        return jsonify(objPlageHoraires)
 
 
 @app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/reserver', methods=['POST'])
@@ -226,10 +295,19 @@ def deletePlageHoraire(parkingId, plageHoraire):
 def utilisateur_id(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
-        utilisateurs = cur.execute(
+        utilisateur = cur.execute(
             "SELECT IF (%s IN (SELECT id_utilisateur FROM Locateur), (SELECT * FROM Locateur WHERE id_utilisateur = %s), (SELECT * FROM Locataire WHERE id_utilisateur = %s))", (id, id, id))
-        utilisateurs = cur.fetchall()
-        return jsonify(utilisateurs)
+        utilisateur = cur.fetchall()
+        objUtilisateur = []
+        for row in utilisateur:
+            d = collections.OrderedDict()
+            d['courriel'] = row[0]
+            d['nom'] = row[1]
+            d['prenom'] = row[2]
+            d['id_utilisateur'] = row[4]
+            d['cote'] = row[5]
+            objUtilisateur.append(d)
+        return jsonify(objUtilisateur)
     if(request.method == 'PUT'):
         cur = mysql.connection.cursor()
         cur.execute("UPDATE utilisateur SET nom=%s, prenom=%s, email=%s, mot_de_passe=%s WHERE id_utilisateur=%s",
@@ -247,20 +325,42 @@ def utilisateur_id(id):
 def utilisateur_id_parkingList(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
-        utilisateurs = cur.execute(
+        parking = cur.execute(
             "SELECT * FROM stationnement WHERE id_stationnement IN (SELECT id_stationnement FROM gerer WHERE id_utilisateur = %s)", [id])
-        utilisateurs = cur.fetchall()
-        return jsonify(utilisateurs)
+        parking = cur.fetchall()
+        objParking = []
+        for row in parking:
+            d = collections.OrderedDict()
+            d['id_stationnement'] = row[0]
+            d['prix'] = row[1]
+            d['longueur'] = row[2]
+            d['largeur'] = row[3]
+            d['hauteur'] = row[4]
+            d['emplacement'] = row[5]
+            d['jours_d_avance'] = row[6]
+            d['date_fin'] = row[7]
+            objParking.append(d)
+        return jsonify(objParking)
 
 
 @app.route('/user/<int:id>/cars', methods=['GET', 'POST'])
 def utilisateur_id_cars(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
-        utilisateurs = cur.execute(
+        vehicule = cur.execute(
             "SELECT * FROM vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_utilisateur = %s", [id])
-        utilisateurs = cur.fetchall()
-        return jsonify(utilisateurs)
+        vehicule = cur.fetchall()
+        objvehicule = []
+        for row in vehicule:
+            d = collections.OrderedDict()
+            d['plaque'] = row[0]
+            d['modele'] = row[1]
+            d['couleur'] = row[2]
+            d['longueur'] = row[3]
+            d['largeur'] = row[4]
+            d['hauteur'] = row[5]
+            objvehicule.append(d)
+        return jsonify(objvehicule)
     if(request.method == 'POST'):
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO Vehicule (plaque, modele, couleur, longueur, largeur, hauteur) VALUE (%s, %s, %s, %s, %s, %s)",
