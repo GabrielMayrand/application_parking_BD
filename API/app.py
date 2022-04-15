@@ -187,19 +187,21 @@ def parking(id):
             objParking.append(d)
         return jsonify(objParking)
     elif(request.method == 'POST'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO stationnement (id_stationnement, prix, longueur, largeur, hauteur, emplacement, jours_d_avance, date_fin) VALUE (%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (id, request.json['prix'], request.json['longueur'], request.json['largeur'], request.json['hauteur'], request.json['emplacement'], request.json['jours_d_avance'], request.json['date_fin']))
+                    (id, data['prix'], data['longueur'], data['largeur'], data['hauteur'], data['emplacement'], data['jours_d_avance'], data['date_fin']))
         cur.execute("INSERT INTO gerer (id_stationnement, id_utilisateur) VALUE (%s, %s)",
-                    (id, request.json['id_utilisateur']))
+                    (id, data['id_utilisateur']))
         cur.execute(
-            "INSERT INTO Locateur (id_utilisateur, cote) VALUE (%s, NULL)", [id])
+            "INSERT INTO Locateur (id_utilisateur, cote) VALUE (%s, NULL)", [data['id_utilisateur']])
         mysql.connection.commit()
         return 'Parking ajoutée'
     elif(request.method == 'PUT'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("UPDATE stationnement SET prix=%s, longueur=%s, largeur=%s, hauteur=%s, emplacement=%s, jours_d_avance=%s, date_fin=%s WHERE id_stationnement=%s",
-                    (request.json['prix'], request.json['longueur'], request.json['largeur'], request.json['hauteur'], request.json['emplacement'], request.json['jours_d_avance'], request.json['date_fin'], id))
+                    (data['prix'], data['longueur'], data['largeur'], data['hauteur'], data['emplacement'], data['jours_d_avance'], data['date_fin'], id))
         mysql.connection.commit()
         return 'Parking updated'
     elif(request.method == 'DELETE'):
