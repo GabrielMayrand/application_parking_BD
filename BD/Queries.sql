@@ -79,12 +79,9 @@ DELETE FROM Plage_horaire WHERE id_plage_horaire = '$id_plage_horaire';
 DELETE FROM possede WHERE id_stationnement = '$id_stationnement' AND id_plage_horaire = '$id_plage_horaire';
 
 --get user by id and cote from Locateur
-SELECT * 
-FROM (SELECT * FROM Utilisateur WHERE id_utilisateur) AS infos
-LEFT JOIN (SELECT IF (id_utilisateur IN (SELECT id_utilisateur FROM Locateur), cote, NULL)) AS cote
-SELECT IF ('$id_utilisateur' IN (SELECT id_utilisateur FROM Locateur),
-        (SELECT * FROM Locateur WHERE id_utilisateur = '$id_utilisateur'),
-        (SELECT * FROM Locataire WHERE id_utilisateur = '$id_utilisateur'));
+SELECT * FROM (SELECT id_utilisateur, courriel, nom, prenom FROM Utilisateur WHERE id_utilisateur = '$id_utilisateur') AS infos
+INNER JOIN (SELECT IF ('$id_utilisateur' IN (SELECT id_utilisateur FROM Locateur),
+    (SELECT cote FROM Locateur WHERE id_utilisateur = '$id_utilisateur'), NULL)) AS cote;
 
 --put user by id
 UPDATE utilisateur SET courriel = '$courriel', nom = '$nom', prenom = '$prenom', mot_de_passe = '$mot_de_passe'

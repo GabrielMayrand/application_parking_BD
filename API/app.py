@@ -281,9 +281,8 @@ def deletePlageHoraire(parkingId, plageHoraire):
 def utilisateur_id(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
-        ####################################
         utilisateur = cur.execute(
-            "SELECT IF (%s IN (SELECT id_utilisateur FROM Locateur), (SELECT * FROM Locateur WHERE id_utilisateur = %s), (SELECT * FROM Locataire WHERE id_utilisateur = %s))", (id, id, id))
+            "SELECT * FROM (SELECT id_utilisateur, courriel, nom, prenom FROM Utilisateur WHERE id_utilisateur = '$id_utilisateur') AS infos INNER JOIN (SELECT IF ('$id_utilisateur' IN (SELECT id_utilisateur FROM Locateur), (SELECT cote FROM Locateur WHERE id_utilisateur = '$id_utilisateur'), NULL)) AS cote", (id, id, id))
         utilisateur = cur.fetchall()
         objUtilisateur = []
         for row in utilisateur:
