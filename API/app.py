@@ -1,6 +1,7 @@
 import collections
 from flask import Flask, jsonify, request
 from flask_mysqldb import MySQL
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -40,7 +41,7 @@ def login():
             password_hash = data['password']
 
             # Compare passwords
-            if(password_hash == password):
+            if(check_password_hash(password_hash, password)):
                 cur.execute(
                     "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courriel = %s", [courriel])
                 utilisateur = cur.fetchall()
@@ -68,7 +69,7 @@ def signup():
         courriel = data['courriel']
         nom = data['nom']
         prenom = data['prenom']
-        password = data['password']
+        password = generate_password_hash(data['password'])
 
         # Create cursor
         cur = mysql.connection.cursor()
