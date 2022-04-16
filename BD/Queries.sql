@@ -10,21 +10,30 @@ SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE id_ut
 SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = '$token';
 
 --get parkingList
-SELECT * FROM stationnement;
+DROP TABLE IF EXISTS tempStationnement;
+CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement);
+SELECT * FROM tempStationnement;
 
 --get parkingList by filters
 --price
-SELECT * FROM stationnement WHERE $prix_min <= prix AND $prix_max >= prix;
+DELETE FROM tempStationnement WHERE id_stationnement NOT IN
+                                    (SELECT id_stationnement FROM stationnement WHERE $prix_min <= prix AND $prix_max >= prix);
+SELECT * FROM tempStationnement;
 
 --dimension
-SELECT * FROM stationnement WHERE longueur >= $longueur AND largeur >= $largeur AND hauteur >= $hauteur;
+DELETE FROM tempStationnement WHERE id_stationnement NOT IN
+                                    (SELECT id_stationnement FROM stationnement WHERE longueur >= $longueur AND largeur >= $largeur AND hauteur >= $hauteur);
+SELECT * FROM tempStationnement;
 
 --jour davance
-SELECT * FROM stationnement WHERE jours_d_avance >= $jours_d_avance;
+DELETE FROM tempStationnement WHERE id_stationnement NOT IN
+                                    (SELECT id_stationnement FROM stationnement WHERE jours_d_avance <= $jours_d_avance);
+SELECT * FROM tempStationnement;
 
 --date de fin
-SELECT * FROM stationnement
-    WHERE date_fin >= $date;
+DELETE FROM tempStationnement WHERE id_stationnement NOT IN
+                                    (SELECT id_stationnement FROM stationnement WHERE date_fin >= $date);
+SELECT * FROM tempStationnement;
 
 --get parkingListId
 SELECT * FROM stationnement

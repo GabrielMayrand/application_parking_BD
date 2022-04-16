@@ -152,14 +152,25 @@ def parkingList():
         longeur = request.args.get('longeur')
         largeur = request.args.get('largeur')
         hauteur = request.args.get('hauteur')
-        joursAvance = request.args.get('joursdavance')
-        date_fin = request.args.get('dateFin')
+        joursAvance = request.args.get('joursDavance')
+        dateFin = request.args.get('dateFin')
         cur = mysql.connection.cursor()
+        cur.execute("DROP TABLE IF EXISTS tempStationnement")
+        cur.execute(
+            "(CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement))")
         if prixMin is not None and prixMax is not None:
             cur.execute(
-                "SELECT * FROM stationnement WHERE %s <= prix AND %s >= prix;", (prixMin, prixMax))
-        else:
-            cur.execute("SELECT * FROM stationnement")
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT * FROM S WHERE %s <= prix AND %s >= prix)", (prixMin, prixMax))
+        if longeur is not None and largeur is not None and hauteur is not None:
+            cur.execute(
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT * FROM S WHERE %s >= longeur AND %s >= largeur AND %s >= hauteur)", (longeur, largeur, hauteur))
+        if joursAvance is not None:
+            cur.execute(
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT * FROM S WHERE jours_avance <= %s)", (joursAvance))
+        if dateFin is not None:
+            cur.execute(
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT * FROM S WHERE date_fin >= %s)", (dateFin))
+        cur.execute("SELECT * FROM tempStationnement")
         parking = cur.fetchall()
         objParking = []
         for row in parking:
@@ -176,7 +187,7 @@ def parkingList():
         return jsonify(objParking)
 
 
-@app.route('/parking/<int:id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@ app.route('/parking/<int:id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def parking(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
@@ -227,7 +238,7 @@ def parking(id):
 
 
 # filters
-@app.route('/parking/<int:parkingId>/plageHoraires', methods=['GET'])
+@ app.route('/parking/<int:parkingId>/plageHoraires', methods=['GET'])
 def plageHoraires(parkingId):
     if(request.method == 'GET'):
         debut = request.args.get('debut')
@@ -256,7 +267,7 @@ def plageHoraires(parkingId):
         return jsonify(objPlageHoraires)
 
 
-@app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/reserver', methods=['POST'])
+@ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/reserver', methods=['POST'])
 def reserver(parkingId, plageHoraire):
     if(request.method == 'POST'):
         cur = mysql.connection.cursor()
@@ -270,7 +281,7 @@ def reserver(parkingId, plageHoraire):
         return 'Plage reservation ajoutée'
 
 
-@app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/inoccupable', methods=['POST'])
+@ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/inoccupable', methods=['POST'])
 def inoccupable(parkingId, plageHoraire):
     if(request.method == 'POST'):
         cur = mysql.connection.cursor()
@@ -284,7 +295,7 @@ def inoccupable(parkingId, plageHoraire):
         return 'Plage inoccupable ajoutée'
 
 
-@app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>', methods=['DELETE'])
+@ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>', methods=['DELETE'])
 def deletePlageHoraire(parkingId, plageHoraire):
     if(request.method == 'DELETE'):
         cur = mysql.connection.cursor()
@@ -300,7 +311,7 @@ def deletePlageHoraire(parkingId, plageHoraire):
         return 'Plage horaire supprimée'
 
 
-@app.route('/user/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+@ app.route('/user/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def utilisateur_id(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
@@ -330,7 +341,7 @@ def utilisateur_id(id):
         return 'Utilisateur supprimé'
 
 
-@app.route('/user/<int:id>/parkingList', methods=['GET'])
+@ app.route('/user/<int:id>/parkingList', methods=['GET'])
 def utilisateur_id_parkingList(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
@@ -352,7 +363,7 @@ def utilisateur_id_parkingList(id):
         return jsonify(objParking)
 
 
-@app.route('/user/<int:id>/cars', methods=['GET', 'POST'])
+@ app.route('/user/<int:id>/cars', methods=['GET', 'POST'])
 def utilisateur_id_cars(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
@@ -381,7 +392,7 @@ def utilisateur_id_cars(id):
         return 'Voiture ajoutée'
 
 
-@app.route('/user/<int:id_utilisateur>/cars/<string:plaque>', methods=['PUT', 'DELETE'])
+@ app.route('/user/<int:id_utilisateur>/cars/<string:plaque>', methods=['PUT', 'DELETE'])
 def cars_id(id_utilisateur, plaque):
     if(request.method == 'PUT'):
         cur = mysql.connection.cursor()
@@ -397,7 +408,7 @@ def cars_id(id_utilisateur, plaque):
         return 'Voiture supprimée'
 
 
-@app.route('/user/<int:id_utilisateur_locataire>/evalue/<int:id_utilisateur_locateur>', methods=['POST'])
+@ app.route('/user/<int:id_utilisateur_locataire>/evalue/<int:id_utilisateur_locateur>', methods=['POST'])
 def evalue(id_utilisateur_locataire, id_utilisateur_locateur):
     if(request.method == 'POST'):
         cur = mysql.connection.cursor()
