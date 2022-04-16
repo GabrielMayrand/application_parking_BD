@@ -14,10 +14,14 @@ app.config['MYSQL_DB'] = 'application_parking'
 mysql = MySQL(app)
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def home():
     if(request.method == 'GET'):
         return 'API is running'
+    elif(request.method == 'POST'):
+        data = request.get_json()
+        test = data['test']
+        return test
 
 
 @app.route('/login', methods=['POST'])
@@ -160,16 +164,16 @@ def parkingList():
             "(CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement))")
         if prixMin is not None and prixMax is not None:
             cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT * FROM S WHERE %s <= prix AND %s >= prix)", (prixMin, prixMax))
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM S WHERE %s <= prix AND %s >= prix)", (prixMin, prixMax))
         if longeur is not None and largeur is not None and hauteur is not None:
             cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT * FROM S WHERE %s >= longeur AND %s >= largeur AND %s >= hauteur)", (longeur, largeur, hauteur))
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM S WHERE %s >= longeur AND %s >= largeur AND %s >= hauteur)", (longeur, largeur, hauteur))
         if joursAvance is not None:
             cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT * FROM S WHERE jours_avance <= %s)", (joursAvance))
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM S WHERE jours_avance <= %s)", (joursAvance))
         if dateFin is not None:
             cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT * FROM S WHERE date_fin >= %s)", (dateFin))
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM S WHERE date_fin >= %s)", (dateFin))
         cur.execute("SELECT * FROM tempStationnement")
         parking = cur.fetchall()
         objParking = []
