@@ -21,8 +21,8 @@ def home():
     elif(request.method == 'POST'):
         data = request.get_json()
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO stationnement (id_stationnement, prix, longueur, largeur, hauteur, emplacement, jours_d_avance, date_fin) VALUE (%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (data['id'], data['prix'], data['longueur'], data['largeur'], data['hauteur'], data['emplacement'], data['joursDavance'], data['dateFin']))
+        cur.execute("INSERT INTO gerer (id_stationnement, id_utilisateur) VALUE (%s, %s)",
+                    (data['id'], data['id_utilisateur']))
         mysql.connection.commit()
 
 
