@@ -23,6 +23,8 @@ def home():
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO gerer (id_stationnement, id_utilisateur) VALUES (%s, %s)",
                     (data['id'], data['id_utilisateur']))
+        cur.execute(
+            "INSERT INTO Locateur (id_utilisateur, cote) VALUE (%s, NULL)", [data['id_utilisateur']])
         mysql.connection.commit()
         return 'OK'
 
