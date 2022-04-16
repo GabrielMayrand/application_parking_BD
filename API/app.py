@@ -22,7 +22,7 @@ def home():
         data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO stationnement (id_stationnement, prix, longueur, largeur, hauteur, emplacement, jours_d_avance, date_fin) VALUE (%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (data['id'], data['prix'], data['longueur'], data['largeur'], data['hauteur'], data['emplacement'], data['jours_d_avance'], data['date_fin']))
+                    (data['id'], data['prix'], data['longueur'], data['largeur'], data['hauteur'], data['emplacement'], data['joursDavance'], data['dateFin']))
         mysql.connection.commit()
 
 
