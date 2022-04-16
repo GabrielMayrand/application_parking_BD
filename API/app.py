@@ -19,14 +19,19 @@ def home():
     if(request.method == 'GET'):
         return 'API is running'
     elif(request.method == 'POST'):
-        data = request.get_json()
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO stationnement (id_stationnement, prix, longueur, largeur, hauteur, emplacement, jours_d_avance, date_fin) VALUE (%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (data['id'], data['prix'], data['longueur'], data['largeur'], data['hauteur'], data['emplacement'], data['jours_d_avance'], data['date_fin']))
-        cur.execute("INSERT INTO gerer (id_stationnement, id_utilisateur) VALUE (%s, %s)",
-                    (data['id'], data['id_utilisateur']))
-        mysql.connection.commit()
-        return 'OK'
+        try:
+            data = request.get_json()
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO stationnement (id_stationnement, prix, longueur, largeur, hauteur, emplacement, jours_d_avance, date_fin) VALUE (%s, %s, %s, %s, %s, %s, %s, %s)",
+                        (data['id'], data['prix'], data['longueur'], data['largeur'], data['hauteur'], data['emplacement'], data['jours_d_avance'], data['date_fin']))
+            cur.execute("INSERT INTO gerer (id_stationnement, id_utilisateur) VALUE (%s, %s)",
+                        (data['id'], data['id_utilisateur']))
+            cur.execute(
+                "INSERT INTO Locateur (id_utilisateur, cote) VALUE (%s, NULL) ON DUPLICATE KEY UPDATE id_utilisateur = id_utilisateur", [data['id_utilisateur']])
+            mysql.connection.commit()
+            return 'OK'
+        except Exception as e:
+            return str(e)
 
 
 @app.route('/login', methods=['POST'])
@@ -224,7 +229,7 @@ def parking(id):
         cur.execute("INSERT INTO gerer (id_stationnement, id_utilisateur) VALUE (%s, %s)",
                     (id, data['id_utilisateur']))
         cur.execute(
-            "INSERT INTO Locateur (id_utilisateur, cote) VALUE (%s, NULL)", [data['id_utilisateur']])
+            "INSERT INTO Locateur (id_utilisateur, cote) VALUE (%s, NULL) ON DUPLICATE KEY UPDATE id_utilisateur = id_utilisateur", [data['id_utilisateur']])
         mysql.connection.commit()
         return 'Parking ajoutée'
     elif(request.method == 'PUT'):
@@ -396,7 +401,8 @@ def utilisateur_id_cars(id):
                     (request.json['plaque'], request.json['modele'], request.json['couleur'], request.json['longueur'], request.json['largeur'], request.json['hauteur']))
         cur.execute("INSERT INTO Appartient (plaque, id_utilisateur) VALUE (%s, %s)",
                     (request.json['plaque'], id))
-        cur.execute("INSERT INTO locataire (id_utilisateur) VALUE (%s)", [id])
+        cur.execute(
+            "INSERT INTO locataire (id_utilisateur) VALUE (%s) ON DUPLICATE KEY UPDATE id_utilisateur = id_utilisateur", [id])
         mysql.connection.commit()
         return 'Voiture ajoutée'
 

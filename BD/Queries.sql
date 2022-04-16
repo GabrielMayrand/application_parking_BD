@@ -44,7 +44,7 @@ INSERT INTO stationnement (id_stationnement, prix, longueur, largeur, hauteur, e
     VALUE ('$id_stationnement', $prix, $longueur, $largeur, $hauteur, '$emplacement',
            $jours_d_avance, '$date_fin');
 INSERT INTO gerer (id_stationnement, id_utilisateur) VALUE ('$id_stationnement', '$id_utilisateur');
-INSERT INTO Locateur (id_utilisateur, cote) VALUE ('$id_utilisateur', NULL);
+INSERT INTO Locateur (id_utilisateur, cote) VALUE ('$id_utilisateur', NULL) ON DUPLICATE KEY UPDATE id_utilisateur = id_utilisateur;
 
 --put parking
 UPDATE stationnement SET prix = $prix, longueur = $longueur, largeur = $largeur, hauteur = $hauteur,
@@ -110,7 +110,7 @@ SELECT * FROM vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_u
 INSERT INTO Vehicule (plaque, modele, couleur, longueur, largeur, hauteur)
     VALUE ('$plaque', '$modele', '$couleur', $longueur, $largeur, $hauteur);
 INSERT INTO Appartient (plaque, id_utilisateur) VALUE ('$plaque', '$id_utilisateur');
-INSERT INTO Locataire (id_utilisateur) VALUE ('$id_utilisateur');
+INSERT INTO Locataire (id_utilisateur) VALUE ('$id_utilisateur') ON DUPLICATE KEY UPDATE id_utilisateur = id_utilisateur;
 
 --put vehicule by plaque
 UPDATE vehicule SET modele = '$modele', couleur = '$couleur', longueur = $longueur, largeur = $largeur, hauteur = $hauteur
