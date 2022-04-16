@@ -21,9 +21,10 @@ def home():
     elif(request.method == 'POST'):
         data = request.get_json()
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO gerer (id_stationnement, id_utilisateur) VALUE (%s, %s)",
+        cur.execute("INSERT INTO gerer (id_stationnement, id_utilisateur) VALUES (%s, %s)",
                     (data['id'], data['id_utilisateur']))
         mysql.connection.commit()
+        return 'OK'
 
 
 @app.route('/login', methods=['POST'])
