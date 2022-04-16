@@ -20,8 +20,7 @@ def home():
         return 'API is running'
     elif(request.method == 'POST'):
         data = request.get_json()
-        test = data['test']
-        return test
+        return data['test']
 
 
 @app.route('/login', methods=['POST'])
@@ -161,7 +160,7 @@ def parkingList():
         cur = mysql.connection.cursor()
         cur.execute("DROP TABLE IF EXISTS tempStationnement")
         cur.execute(
-            "(CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement))")
+            "CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement)")
         if prixMin is not None and prixMax is not None:
             cur.execute(
                 "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM S WHERE %s <= prix AND %s >= prix)", (prixMin, prixMax))
