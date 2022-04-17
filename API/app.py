@@ -270,13 +270,14 @@ def plageHoraires(parkingId):
 @ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/reserver', methods=['POST'])
 def reserver(parkingId, plageHoraire):
     if(request.method == 'POST'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart) VALUE (%s, %s, %s)",
-                    (plageHoraire, request.json['date_arrivee'], request.json['date_depart']))
+                    (plageHoraire, data['date_arrivee'], data['date_depart']))
         cur.execute("INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUE (%s, %s)",
                     (plageHoraire, parkingId))
         cur.execute("INSERT INTO Reservation (id_plage_horaire, id_utilisateur) VALUE (%s, %s)",
-                    (plageHoraire, request.json['id_utilisateur']))
+                    (plageHoraire, data['id_utilisateur']))
         mysql.connection.commit()
         return 'Plage reservation ajoutée'
 
@@ -284,13 +285,14 @@ def reserver(parkingId, plageHoraire):
 @ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/inoccupable', methods=['POST'])
 def inoccupable(parkingId, plageHoraire):
     if(request.method == 'POST'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart) VALUE (%s, %s, %s)",
-                    (plageHoraire, request.json['date_arrivee'], request.json['date_depart']))
+                    (plageHoraire, data['date_arrivee'], data['date_depart']))
         cur.execute("INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUE (%s, %s)",
                     (plageHoraire, parkingId))
         cur.execute("INSERT INTO Inoccupable (id_plage_horaire, id_utilisateur) VALUE (%s, %s)",
-                    (plageHoraire, request.json['id_utilisateur']))
+                    (plageHoraire, data['id_utilisateur']))
         mysql.connection.commit()
         return 'Plage inoccupable ajoutée'
 
@@ -376,11 +378,12 @@ def utilisateur_id_cars(id):
             objvehicule.append(d)
         return jsonify(objvehicule)
     if(request.method == 'POST'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO Vehicule (plaque, modele, couleur, longueur, largeur, hauteur) VALUE (%s, %s, %s, %s, %s, %s)",
-                    (request.json['plaque'], request.json['modele'], request.json['couleur'], request.json['longueur'], request.json['largeur'], request.json['hauteur']))
+                    (data['plaque'], data['modele'], data['couleur'], data['longueur'], data['largeur'], data['hauteur']))
         cur.execute("INSERT INTO Appartient (plaque, id_utilisateur) VALUE (%s, %s)",
-                    (request.json['plaque'], id))
+                    (data['plaque'], id))
         cur.execute(
             "INSERT INTO locataire (id_utilisateur) VALUE (%s) ON DUPLICATE KEY UPDATE id_utilisateur = id_utilisateur", [id])
         mysql.connection.commit()
@@ -390,9 +393,10 @@ def utilisateur_id_cars(id):
 @ app.route('/user/<int:id_utilisateur>/cars/<string:plaque>', methods=['PUT', 'DELETE'])
 def cars_id(id_utilisateur, plaque):
     if(request.method == 'PUT'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("UPDATE Vehicule SET modele=%s, couleur=%s, longueur=%s, largeur=%s, hauteur=%s WHERE plaque=%s",
-                    (request.json['modele'], request.json['couleur'], request.json['longueur'], request.json['largeur'], request.json['hauteur'], plaque))
+                    (data['modele'], data['couleur'], data['longueur'], data['largeur'], data['hauteur'], plaque))
         mysql.connection.commit()
         return 'Voiture modifiée'
     if(request.method == 'DELETE'):
@@ -406,9 +410,10 @@ def cars_id(id_utilisateur, plaque):
 @ app.route('/user/<int:id_utilisateur_locataire>/evalue/<int:id_utilisateur_locateur>', methods=['POST'])
 def evalue(id_utilisateur_locataire, id_utilisateur_locateur):
     if(request.method == 'POST'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO Evalue (id_utilisateur_locataire, id_utilisateur_locateur, cote) VALUE (%s, %s, %s)",
-                    (id_utilisateur_locataire, id_utilisateur_locateur, request.json['cote']))
+                    (id_utilisateur_locataire, id_utilisateur_locateur, data['cote']))
         mysql.connection.commit()
         return 'Evaluation ajoutée'
 
