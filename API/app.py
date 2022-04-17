@@ -1,8 +1,8 @@
 import collections
 import datetime
+import jwt
 from msilib import type_binary
 from flask import Flask, jsonify, request
-from flask_jwt import JWT, jwt_required, current_identity
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -13,15 +13,9 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'password'
 app.config['MYSQL_DB'] = 'application_parking'
+app.config['SECRET_KEY'] = 'thisissecret'
 
 mysql = MySQL(app)
-
-
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    if(request.method == 'GET'):
-        return 'API is running'
-
 
 def encode_auth_token(self, user_id):
     """
@@ -43,6 +37,29 @@ def encode_auth_token(self, user_id):
         return e
 
 
+@staticmethod
+def decode_auth_token(auth_token):
+    """
+    Decodes the auth token
+    :param auth_token:
+    :return: integer|string
+    """
+    try:
+        payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'))
+        return payload['sub']
+    except jwt.ExpiredSignatureError:
+        return 'Signature expired. Please log in again.'
+    except jwt.InvalidTokenError:
+        return 'Invalid token. Please log in again.'
+
+
+
+@app.route('/', methods=['GET'])
+def home():
+    if(request.method == 'GET'):
+        return 'API is running'
+
+
 @app.route('/login', methods=['POST'])
 def login():
     if(request.method == 'POST'):
@@ -62,7 +79,6 @@ def login():
             # Get stored hash
             data = cur.fetchone()
             password_hash = data[0]
-
 
             # Compare passwords
             if(check_password_hash(password_hash, password)):
