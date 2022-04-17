@@ -93,7 +93,7 @@ INNER JOIN (SELECT IF ('$id_utilisateur' IN (SELECT id_utilisateur FROM Locateur
     (SELECT cote FROM Locateur WHERE id_utilisateur = '$id_utilisateur'), NULL)) AS cote;
 
 --delete user by id
-DELETE FROM Utilisateur WHERE id_utilisateur = '$id_utilisateur';
+DELETE FROM Utilisateur WHERE id_utilisateur = '$id_utilisateur' AND token = '$token';
 
 --get parking by user id
 SELECT * FROM stationnement WHERE id_stationnement IN

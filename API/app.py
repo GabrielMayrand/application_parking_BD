@@ -331,10 +331,15 @@ def utilisateur_id(id):
             objUtilisateur.append(d)
         return jsonify(objUtilisateur)
     if(request.method == 'DELETE'):
+        token = request.args.get('token')
         cur = mysql.connection.cursor()
-        cur.execute("DELETE FROM Utilisateur WHERE id_utilisateur=%s", [id])
-        mysql.connection.commit()
-        return 'Utilisateur supprimé'
+        try:
+            cur.execute(
+                "DELETE FROM Utilisateur WHERE id_utilisateur = %s AND token = %s", (id, token))
+            mysql.connection.commit()
+            return 'Utilisateur supprimé'
+        except:
+            return 'Utilisateur non supprimé'
 
 
 @ app.route('/user/<string:id>/parkingList', methods=['GET'])
