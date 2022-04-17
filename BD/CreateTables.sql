@@ -61,22 +61,24 @@ BEGIN
     DECLARE id_utilisateur_to_delete CHAR(32);
     SET id_utilisateur_to_delete = OLD.id_utilisateur;
 
-    DELETE FROM Inoccupable WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM Retirer WHERE id_utilisateur = id_utilisateur_to_delete);
-    DELETE FROM Reservation WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM Louer WHERE id_utilisateur = id_utilisateur_to_delete);
-    DELETE FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement IN (SELECT id_stationnement FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete)) 
-                                    OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Louer)
-                                    OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Retirer);
-    DELETE FROM Retirer WHERE id_utilisateur = id_utilisateur_to_delete;
-    DELETE FROM Louer WHERE id_utilisateur = id_utilisateur_to_delete;
-    DELETE FROM Stationnement WHERE id_stationnement IN (SELECT id_stationnement FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete);
-    DELETE FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete;
-    DELETE FROM Possede WHERE id_stationnement NOT IN (SELECT id_stationnement FROM Stationnement)
-                            OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Plage_horaire);
-    DELETE FROM Vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_utilisateur = id_utilisateur_to_delete);
-    DELETE FROM Appartient WHERE id_utilisateur = id_utilisateur_to_delete;
-    DELETE FROM Evalue WHERE id_utilisateur_locataire = id_utilisateur_to_delete or id_utilisateur_locateur = id_utilisateur_to_delete;
-    DELETE FROM Locataire WHERE id_utilisateur = id_utilisateur_to_delete;
-    DELETE FROM Locateur WHERE id_utilisateur = id_utilisateur_to_delete;
+    IF (SELECT token FROM Utilisateur WHERE id_utilisateur = id_utilisateur_to_delete) = OLD.token THEN
+        DELETE FROM Inoccupable WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM Retirer WHERE id_utilisateur = id_utilisateur_to_delete);
+        DELETE FROM Reservation WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM Louer WHERE id_utilisateur = id_utilisateur_to_delete);
+        DELETE FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement IN (SELECT id_stationnement FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete))
+                                        OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Louer)
+                                        OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Retirer);
+        DELETE FROM Retirer WHERE id_utilisateur = id_utilisateur_to_delete;
+        DELETE FROM Louer WHERE id_utilisateur = id_utilisateur_to_delete;
+        DELETE FROM Stationnement WHERE id_stationnement IN (SELECT id_stationnement FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete);
+        DELETE FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete;
+        DELETE FROM Possede WHERE id_stationnement NOT IN (SELECT id_stationnement FROM Stationnement)
+                                OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Plage_horaire);
+        DELETE FROM Vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_utilisateur = id_utilisateur_to_delete);
+        DELETE FROM Appartient WHERE id_utilisateur = id_utilisateur_to_delete;
+        DELETE FROM Evalue WHERE id_utilisateur_locataire = id_utilisateur_to_delete or id_utilisateur_locateur = id_utilisateur_to_delete;
+        DELETE FROM Locataire WHERE id_utilisateur = id_utilisateur_to_delete;
+        DELETE FROM Locateur WHERE id_utilisateur = id_utilisateur_to_delete;
+    END IF;
 END
 //
 DELIMITER ;
@@ -126,7 +128,7 @@ INSERT INTO Reservation (id_plage_horaire) VALUES (2), (3), (4), (5), (6);
 
 INSERT INTO Inoccupable (id_plage_horaire) VALUES (1);
 
-INSERT INTO LOUER (id_utilisateur, id_plage_horaire) VALUES (@id3, 2), (@id3, 3), (@id4, 4), (@id4, 5), (@id3, 6);
+INSERT INTO louer (id_utilisateur, id_plage_horaire) VALUES (@id3, 2), (@id3, 3), (@id4, 4), (@id4, 5), (@id3, 6);
 
 INSERT INTO Retirer (id_utilisateur, id_plage_horaire) VALUES (@id2, 1);
 

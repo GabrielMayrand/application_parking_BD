@@ -22,7 +22,7 @@ SELECT * FROM tempStationnement;
 
 --dimension
 DELETE FROM tempStationnement WHERE id_stationnement NOT IN
-                                    (SELECT id_stationnement FROM stationnement WHERE longueur >= $longueur AND largeur >= $largeur AND hauteur >= $hauteur);
+                                    (SELECT id_stationnement FROM stationnement WHERE longueur <= $longueur AND largeur <= $largeur AND hauteur <= $hauteur);
 SELECT * FROM tempStationnement;
 
 --jour davance
@@ -70,20 +70,26 @@ INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart)
     VALUE ('$id_plage_horaire', '$date_arrivee', '$date_depart');
 INSERT INTO possede (id_plage_horaire, id_stationnement)
     VALUE ('$id_plage_horaire', '$id_stationnement');
-INSERT INTO Reservation (id_plage_horaire, id_utilisateur)
+INSERT INTO louer (id_plage_horaire, id_utilisateur)
     VALUE ('$id_plage_horaire', '$id_utilisateur');
+INSERT INTO Reservation (id_plage_horaire)
+    VALUE ('$id_plage_horaire');
 
 --post Inoccupable plageHoraire by stationnement_id
 INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart)
     VALUE ('$id_plage_horaire', '$date_arrivee', '$date_depart');
 INSERT INTO possede (id_plage_horaire, id_stationnement)
     VALUE ('$id_plage_horaire', '$id_stationnement');
-INSERT INTO Inoccupable (id_plage_horaire, id_utilisateur)
+INSERT INTO Retirer (id_plage_horaire, id_utilisateur)
     VALUE ('$id_plage_horaire', '$id_utilisateur');
+INSERT INTO Inoccupable (id_plage_horaire)
+    VALUE ('$id_plage_horaire');
 
 --delete plageHoraire by stationnement_id
 DELETE FROM Inoccupable WHERE id_plage_horaire = '$id_plage_horaire';
 DELETE FROM Reservation WHERE id_plage_horaire = '$id_plage_horaire';
+DELETE FROM louer WHERE id_plage_horaire = '$id_plage_horaire';
+DELETE FROM retirer WHERE id_plage_horaire = '$id_plage_horaire';
 DELETE FROM Plage_horaire WHERE id_plage_horaire = '$id_plage_horaire';
 DELETE FROM possede WHERE id_stationnement = '$id_stationnement' AND id_plage_horaire = '$id_plage_horaire';
 
