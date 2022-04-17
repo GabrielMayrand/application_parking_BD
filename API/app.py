@@ -17,14 +17,14 @@ app.config['SECRET_KEY'] = 'thisissecret'
 
 mysql = MySQL(app)
 
-def encode_auth_token(self, user_id):
+def encode_auth_token(user_id):
     """
     Generates the Auth Token
     :return: string
     """
     try:
         payload = {
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=5),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7, seconds=5),
             'iat': datetime.datetime.utcnow(),
             'sub': user_id
         }
@@ -51,7 +51,6 @@ def decode_auth_token(auth_token):
         return 'Signature expired. Please log in again.'
     except jwt.InvalidTokenError:
         return 'Invalid token. Please log in again.'
-
 
 
 @app.route('/', methods=['GET'])
@@ -122,11 +121,20 @@ def signup():
             return jsonify({'message': 'Utilisateur déjà existant'})
 
         # Create new user
-        cur.execute("INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUES (md5(%s), sha1(md5(%s)), %s, %s, %s, %s)",
-                    (courriel, courriel, courriel, nom, prenom, password))
+        cur.execute("INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUES (md5(%s), NULL, %s, %s, %s, %s)",
+                    (courriel, courriel, nom, prenom, password))
 
         # Commit to DB
         mysql.connection.commit()
+
+        # token
+        cur.execute(
+            "SELECT id_utilisateur FROM utilisateur WHERE courriel = %s", [courriel])
+        id_utilisateur = cur.fetchone()
+        token = encode_auth_token(id_utilisateur)
+        return jsonify({'message': 'Utilisateur créé', 'token': decode_auth_token(token)})
+        cur.execute(
+            "UPDATE utilisateur SET token = %s WHERE courriel = %s", (token.decode(), courriel))
 
         # Return user info
         cur.execute(
@@ -144,19 +152,66 @@ def signup():
         return jsonify(objUtilisateur)
 
 
+""" @app.route('/logout', methods=['POST'])
+def LogoutAPI():
+    def post(self):
+        # get auth token
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+        if auth_token:
+            resp = decode_auth_token(auth_token)
+            if not isinstance(resp, str):
+                # mark the token as blacklisted
+                blacklist_token = BlacklistToken(token=auth_token)
+                try:
+                    # insert the token
+                    db.session.add(blacklist_token)
+                    db.session.commit()
+                    responseObject = {
+                        'status': 'success',
+                        'message': 'Successfully logged out.'
+                    }
+                    return jsonify(responseObject, 200)
+                except Exception as e:
+                    responseObject = {
+                        'status': 'fail',
+                        'message': e
+                    }
+                    return jsonify(responseObject, 200)
+            else:
+                responseObject = {
+                    'status': 'fail',
+                    'message': resp
+                }
+                return jsonify(responseObject, 401)
+        else:
+            responseObject = {
+                'status': 'fail',
+                'message': 'Provide a valid auth token.'
+            }
+            return jsonify(responseObject, 403) """
+
+
 @app.route('/tokenInfo', methods=['GET'])
 def tokenInfo():
     if(request.method == 'GET'):
         # Get token from request
-        token = request.args.get('token')
-        print(token)
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+        print(decode_auth_token(auth_token))
 
         # Create cursor
         cur = mysql.connection.cursor()
 
         # Get user by username
         result = cur.execute(
-            "SELECT token FROM utilisateur WHERE token = %s", [token])
+            "SELECT token FROM utilisateur WHERE token = %s", [decode_auth_token(auth_token)])
 
         if result > 0:
             # Get stored hash
@@ -164,7 +219,7 @@ def tokenInfo():
             token_hash = data[0]
 
             # Compare tokens
-            if(token_hash == token):
+            if(token_hash == decode_auth_token(auth_token)):
                 cur.execute(
                     "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = %s", [token])
                 utilisateur = cur.fetchall()
