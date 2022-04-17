@@ -1,6 +1,4 @@
 import collections
-import datetime
-import jwt
 from msilib import type_binary
 from flask import Flask, jsonify, request
 from flask_mysqldb import MySQL
@@ -16,41 +14,6 @@ app.config['MYSQL_DB'] = 'application_parking'
 app.config['SECRET_KEY'] = 'thisissecret'
 
 mysql = MySQL(app)
-
-def encode_auth_token(user_id):
-    """
-    Generates the Auth Token
-    :return: string
-    """
-    try:
-        payload = {
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7, seconds=5),
-            'iat': datetime.datetime.utcnow(),
-            'sub': user_id
-        }
-        return jwt.encode(
-            payload,
-            app.config.get('SECRET_KEY'),
-            algorithm='HS256'
-        )
-    except Exception as e:
-        return e
-
-
-@staticmethod
-def decode_auth_token(auth_token):
-    """
-    Decodes the auth token
-    :param auth_token:
-    :return: integer|string
-    """
-    try:
-        payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'))
-        return payload['sub']
-    except jwt.ExpiredSignatureError:
-        return 'Signature expired. Please log in again.'
-    except jwt.InvalidTokenError:
-        return 'Invalid token. Please log in again.'
 
 
 @app.route('/', methods=['GET'])
@@ -121,20 +84,16 @@ def signup():
             return jsonify({'message': 'Utilisateur déjà existant'})
 
         # Create new user
-        cur.execute("INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUES (md5(%s), NULL, %s, %s, %s, %s)",
-                    (courriel, courriel, nom, prenom, password))
+        cur.execute("INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUES (md5(%s), sha1(%s), %s, %s, %s, %s)",
+                    (courriel, courriel, courriel, nom, prenom, password))
 
         # Commit to DB
         mysql.connection.commit()
 
         # token
+        """token = encode_auth_token(sha1(courriel))
         cur.execute(
-            "SELECT id_utilisateur FROM utilisateur WHERE courriel = %s", [courriel])
-        id_utilisateur = cur.fetchone()
-        token = encode_auth_token(id_utilisateur)
-        return jsonify({'message': 'Utilisateur créé', 'token': decode_auth_token(token)})
-        cur.execute(
-            "UPDATE utilisateur SET token = %s WHERE courriel = %s", (token.decode(), courriel))
+            "UPDATE utilisateur SET token = %s WHERE courriel = %s", (decode_auth_token(token), courriel))"""
 
         # Return user info
         cur.execute(
@@ -152,49 +111,6 @@ def signup():
         return jsonify(objUtilisateur)
 
 
-""" @app.route('/logout', methods=['POST'])
-def LogoutAPI():
-    def post(self):
-        # get auth token
-        auth_header = request.headers.get('Authorization')
-        if auth_header:
-            auth_token = auth_header.split(" ")[1]
-        else:
-            auth_token = ''
-        if auth_token:
-            resp = decode_auth_token(auth_token)
-            if not isinstance(resp, str):
-                # mark the token as blacklisted
-                blacklist_token = BlacklistToken(token=auth_token)
-                try:
-                    # insert the token
-                    db.session.add(blacklist_token)
-                    db.session.commit()
-                    responseObject = {
-                        'status': 'success',
-                        'message': 'Successfully logged out.'
-                    }
-                    return jsonify(responseObject, 200)
-                except Exception as e:
-                    responseObject = {
-                        'status': 'fail',
-                        'message': e
-                    }
-                    return jsonify(responseObject, 200)
-            else:
-                responseObject = {
-                    'status': 'fail',
-                    'message': resp
-                }
-                return jsonify(responseObject, 401)
-        else:
-            responseObject = {
-                'status': 'fail',
-                'message': 'Provide a valid auth token.'
-            }
-            return jsonify(responseObject, 403) """
-
-
 @app.route('/tokenInfo', methods=['GET'])
 def tokenInfo():
     if(request.method == 'GET'):
@@ -204,14 +120,13 @@ def tokenInfo():
             auth_token = auth_header.split(" ")[1]
         else:
             auth_token = ''
-        print(decode_auth_token(auth_token))
 
         # Create cursor
         cur = mysql.connection.cursor()
 
         # Get user by username
         result = cur.execute(
-            "SELECT token FROM utilisateur WHERE token = %s", [decode_auth_token(auth_token)])
+            "SELECT token FROM utilisateur WHERE token = %s", [auth_token])
 
         if result > 0:
             # Get stored hash
@@ -219,9 +134,9 @@ def tokenInfo():
             token_hash = data[0]
 
             # Compare tokens
-            if(token_hash == decode_auth_token(auth_token)):
+            if(token_hash == auth_token):
                 cur.execute(
-                    "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = %s", [token])
+                    "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = %s", [auth_token])
                 utilisateur = cur.fetchall()
                 objUtilisateur = []
                 for row in utilisateur:
@@ -432,16 +347,21 @@ def utilisateur_id(id):
             objUtilisateur.append(d)
         return jsonify(objUtilisateur)
     if(request.method == 'DELETE'):
-        token = request.args.get('token')
+        # Get token from request
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
         cur = mysql.connection.cursor()
-        if token is None:
+        if auth_token is None:
             return 'Token manquant'
-        cur.execute("SELECT id_utilisateur FROM Utilisateur WHERE token = %s", [token])
+        cur.execute("SELECT id_utilisateur FROM Utilisateur WHERE token = %s", [auth_token])
         utilisateur = cur.fetchone()
         if utilisateur is None:
             return 'Token invalide'
         cur.execute(
-            "DELETE FROM Utilisateur WHERE id_utilisateur = %s AND token = %s", (id, token))
+            "DELETE FROM Utilisateur WHERE id_utilisateur = %s AND token = %s", (id, auth_token))
         mysql.connection.commit()
         return 'Utilisateur supprimé'
 
