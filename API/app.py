@@ -111,6 +111,7 @@ def tokenInfo():
     if(request.method == 'GET'):
         # Get token from request
         token = request.args.get('token')
+        print(token)
 
         # Create cursor
         cur = mysql.connection.cursor()
@@ -162,16 +163,16 @@ def parkingList():
             "CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement)")
         if prixMin is not None and prixMax is not None:
             cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM S WHERE %s <= prix AND %s >= prix)", (prixMin, prixMax))
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE %s <= prix AND %s >= prix)", (prixMin, prixMax))
         if longeur is not None and largeur is not None and hauteur is not None:
             cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM S WHERE %s >= longeur AND %s >= largeur AND %s >= hauteur)", (longeur, largeur, hauteur))
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE %s >= longeur AND %s >= largeur AND %s >= hauteur)", (longeur, largeur, hauteur))
         if joursAvance is not None:
             cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM S WHERE jours_avance <= %s)", (joursAvance))
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE jours_avance <= %s)", (joursAvance))
         if dateFin is not None:
             cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM S WHERE date_fin >= %s)", (dateFin))
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE date_fin >= %s)", (dateFin))
         cur.execute("SELECT * FROM tempStationnement")
         parking = cur.fetchall()
         objParking = []
