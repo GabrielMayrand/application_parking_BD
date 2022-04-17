@@ -239,11 +239,7 @@ def parking(id):
     elif(request.method == 'DELETE'):
         cur = mysql.connection.cursor()
         cur.execute(
-            "DELETE FROM stationnement WHERE id_stationnement=%s", [id])
-        cur.execute(
-            "DELETE FROM gerer WHERE id_stationnement=%s", [id])
-        cur.execute(
-            "DELETE FROM possede WHERE id_stationnement=%s", [id])
+            "call delete_stationnement(%s)", [id])
         mysql.connection.commit()
         return 'Parking supprimée'
 
@@ -252,8 +248,12 @@ def parking(id):
 @ app.route('/parking/<int:parkingId>/plageHoraires', methods=['GET'])
 def plageHoraires(parkingId):
     if(request.method == 'GET'):
-        debut = (request.args.get('debut')).replace("+", " ")
-        fin = (request.args.get('fin')).replace("+", " ")
+        debut = (request.args.get('debut'))
+        if(debut is not None): 
+            debut.replace("%20", " ")
+        fin = (request.args.get('fin'))
+        if(fin is not None):
+            fin.replace("%20", " ")
         cur = mysql.connection.cursor()
         if debut is not None and fin is not None:
             cur.execute(
@@ -315,15 +315,8 @@ def deletePlageHoraire(parkingId, plageHoraireId):
     if(request.method == 'DELETE'):
         cur = mysql.connection.cursor()
         cur.execute(
-            "DELETE FROM Reservation WHERE id_plage_horaire=%s", [plageHoraireId])
-        cur.execute(
-            "DELETE FROM Inoccupable WHERE id_plage_horaire=%s", [plageHoraireId])
-        cur.execute("DELETE FROM louer WHERE id_plage_horaire = %s", [plageHoraireId])
-        cur.execute("DELETE FROM retirer WHERE id_plage_horaire = %s", [plageHoraireId])
-        cur.execute(
-            "DELETE FROM Plage_horaire WHERE id_plage_horaire=%s", [plageHoraireId])
-        cur.execute(
-            "DELETE FROM Possede WHERE id_stationnement = %s AND id_plage_horaire=%s", (parkingId, plageHoraireId))
+            "call delete_plageHoraire ((SELECT id_plage_horaire FROM Possede WHERE id_plage_horaire = %s AND id_stationnement = %s))", 
+            (plageHoraireId, parkingId))
         mysql.connection.commit()
         return 'Plage horaire supprimée'
 

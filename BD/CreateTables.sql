@@ -58,27 +58,67 @@ DELIMITER ;
 DELIMITER //
 CREATE TRIGGER `Delete_utilisateur` BEFORE DELETE ON `Utilisateur` FOR EACH ROW
 BEGIN
+    DECLARE cur_is_done BOOLEAN DEFAULT FALSE;
+    DECLARE cur_id_parking CHAR(20);
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET cur_is_done = TRUE;
+
     DECLARE id_utilisateur_to_delete CHAR(32);
     SET id_utilisateur_to_delete = OLD.id_utilisateur;
 
+    DECLARE cur_parking CURSOR FOR SELECT id_stationnement FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete;
+
     IF (SELECT token FROM Utilisateur WHERE id_utilisateur = id_utilisateur_to_delete) = OLD.token THEN
-        DELETE FROM Inoccupable WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM Retirer WHERE id_utilisateur = id_utilisateur_to_delete);
-        DELETE FROM Reservation WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM Louer WHERE id_utilisateur = id_utilisateur_to_delete);
-        DELETE FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement IN (SELECT id_stationnement FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete))
-                                        OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Louer)
-                                        OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Retirer);
-        DELETE FROM Retirer WHERE id_utilisateur = id_utilisateur_to_delete;
-        DELETE FROM Louer WHERE id_utilisateur = id_utilisateur_to_delete;
-        DELETE FROM Stationnement WHERE id_stationnement IN (SELECT id_stationnement FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete);
-        DELETE FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete;
-        DELETE FROM Possede WHERE id_stationnement NOT IN (SELECT id_stationnement FROM Stationnement)
-                                OR id_plage_horaire NOT IN (SELECT id_plage_horaire FROM Plage_horaire);
+        OPEN cur_parking;
+        boucle: LOOP
+            FETCH cur_parking INTO cur_id_parking;
+            IF cur_is_done THEN
+                LEAVE boucle;
+            END IF;
+            call delete_stationnement(cur_id_parking);
+        END LOOP boucle;
+        CLOSE cur_parking;
+
         DELETE FROM Vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_utilisateur = id_utilisateur_to_delete);
         DELETE FROM Appartient WHERE id_utilisateur = id_utilisateur_to_delete;
         DELETE FROM Evalue WHERE id_utilisateur_locataire = id_utilisateur_to_delete or id_utilisateur_locateur = id_utilisateur_to_delete;
         DELETE FROM Locataire WHERE id_utilisateur = id_utilisateur_to_delete;
         DELETE FROM Locateur WHERE id_utilisateur = id_utilisateur_to_delete;
     END IF;
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE delete_plageHoraire (IN p_id_plage_horaire char(20))
+BEGIN
+    DELETE FROM Inoccupable WHERE id_plage_horaire = p_id_plage_horaire;
+    DELETE FROM Reservation WHERE id_plage_horaire = p_id_plage_horaire;
+    DELETE FROM louer WHERE id_plage_horaire = p_id_plage_horaire;
+    DELETE FROM retirer WHERE id_plage_horaire = p_id_plage_horaire;
+    DELETE FROM Plage_horaire WHERE id_plage_horaire = p_id_plage_horaire;
+    DELETE FROM possede WHERE id_plage_horaire = p_id_plage_horaire;
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE delete_stationnement (IN p_id_stationnement char(20))
+BEGIN
+    DECLARE cur_is_done BOOLEAN DEFAULT FALSE;
+    DECLARE cur_id_plage_horaire CHAR(20);
+    DECLARE cur CURSOR FOR SELECT id_plage_horaire FROM Possede WHERE id_stationnement = p_id_stationnement;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET cur_is_done = TRUE;
+    OPEN cur;
+    DELETE FROM stationnement WHERE id_stationnement = p_id_stationnement;
+    DELETE FROM gerer WHERE id_stationnement = p_id_stationnement;
+    boucle: LOOP
+        FETCH cur INTO cur_id_plage_horaire;
+        IF cur_is_done THEN
+            LEAVE boucle;
+        END IF;
+        call delete_plageHoraire (cur_id_plage_horaire);
+   END LOOP boucle;
+   CLOSE cur;
 END
 //
 DELIMITER ;

@@ -52,9 +52,7 @@ UPDATE stationnement SET prix = $prix, longueur = $longueur, largeur = $largeur,
     WHERE id_stationnement = '$id_stationnement';
 
 --delete parking
-DELETE FROM stationnement WHERE id_stationnement = '$id_stationnement';
-DELETE FROM gerer WHERE id_stationnement = '$id_stationnement';
-DELETE FROM Possede WHERE id_stationnement = '$id_stationnement';
+call delete_parking('$id_stationnement');
 
 --get plageHoraire by stationnement_id
 SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
@@ -86,12 +84,7 @@ INSERT INTO Inoccupable (id_plage_horaire)
     VALUE ('$id_plage_horaire');
 
 --delete plageHoraire by stationnement_id
-DELETE FROM Inoccupable WHERE id_plage_horaire = '$id_plage_horaire';
-DELETE FROM Reservation WHERE id_plage_horaire = '$id_plage_horaire';
-DELETE FROM louer WHERE id_plage_horaire = '$id_plage_horaire';
-DELETE FROM retirer WHERE id_plage_horaire = '$id_plage_horaire';
-DELETE FROM Plage_horaire WHERE id_plage_horaire = '$id_plage_horaire';
-DELETE FROM possede WHERE id_stationnement = '$id_stationnement' AND id_plage_horaire = '$id_plage_horaire';
+call delete_plageHoraire ((SELECT id_plage_horaire FROM Possede WHERE id_plage_horaire = '$id_plage_horaire' AND id_stationnement = '$id_stationnement'));
 
 --get user by id and cote from Locateur
 SELECT * FROM (SELECT id_utilisateur, courriel, nom, prenom FROM Utilisateur WHERE id_utilisateur = '$id_utilisateur') AS infos
