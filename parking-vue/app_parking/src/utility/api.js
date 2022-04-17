@@ -18,8 +18,6 @@ export class API {
     async getParkingList() {
         let HTTPOptions = {
             headers: {
-                'Access-Control-Allow-Origin': 'origin-list',
-                'Access-Control-Allow-Methods': 'GET',
             },
             method: "GET",
             'Content-Type': 'application/json'
