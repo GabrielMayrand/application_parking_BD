@@ -92,10 +92,6 @@ SELECT * FROM (SELECT id_utilisateur, courriel, nom, prenom FROM Utilisateur WHE
 INNER JOIN (SELECT IF ('$id_utilisateur' IN (SELECT id_utilisateur FROM Locateur),
     (SELECT cote FROM Locateur WHERE id_utilisateur = '$id_utilisateur'), NULL)) AS cote;
 
---put user by id
-UPDATE utilisateur SET courriel = '$courriel', nom = '$nom', prenom = '$prenom', mot_de_passe = '$mot_de_passe'
-    WHERE id_utilisateur = '$id_utilisateur';
-
 --delete user by id
 DELETE FROM Utilisateur WHERE id_utilisateur = '$id_utilisateur';
 

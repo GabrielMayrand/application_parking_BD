@@ -325,7 +325,7 @@ def deletePlageHoraire(parkingId, plageHoraire):
         return 'Plage horaire supprimée'
 
 
-@ app.route('/user/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+@ app.route('/user/<int:id>', methods=['GET', 'DELETE'])
 def utilisateur_id(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
@@ -342,12 +342,6 @@ def utilisateur_id(id):
             d['cote'] = row[5]
             objUtilisateur.append(d)
         return jsonify(objUtilisateur)
-    if(request.method == 'PUT'):
-        cur = mysql.connection.cursor()
-        cur.execute("UPDATE utilisateur SET nom=%s, prenom=%s, email=%s, mot_de_passe=%s WHERE id_utilisateur=%s",
-                    (request.json['nom'], request.json['prenom'], request.json['email'], request.json['mot_de_passe'], id))
-        mysql.connection.commit()
-        return 'Utilisateur modifié'
     if(request.method == 'DELETE'):
         cur = mysql.connection.cursor()
         cur.execute("DELETE FROM Utilisateur WHERE id_utilisateur=%s", [id])
