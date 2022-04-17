@@ -152,7 +152,7 @@ def parkingList():
     if(request.method == 'GET'):
         prixMin = request.args.get('prixMin')
         prixMax = request.args.get('prixMax')
-        longeur = request.args.get('longeur')
+        longueur = request.args.get('longueur')
         largeur = request.args.get('largeur')
         hauteur = request.args.get('hauteur')
         joursAvance = request.args.get('joursDavance')
@@ -164,9 +164,9 @@ def parkingList():
         if prixMin is not None and prixMax is not None:
             cur.execute(
                 "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE %s <= prix AND %s >= prix)", (prixMin, prixMax))
-        if longeur is not None and largeur is not None and hauteur is not None:
+        if longueur is not None and largeur is not None and hauteur is not None:
             cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE %s >= longeur AND %s >= largeur AND %s >= hauteur)", (longeur, largeur, hauteur))
+                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE %s >= longueur AND %s >= largeur AND %s >= hauteur)", (longueur, largeur, hauteur))
         if joursAvance is not None:
             cur.execute(
                 "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE jours_avance <= %s)", (joursAvance))
