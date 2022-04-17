@@ -3,7 +3,7 @@ CREATE DATABASE application_parking;
 use application_parking;
 
 
-CREATE TABLE Utilisateur (id_utilisateur char(32) PRIMARY KEY, token char(40), courriel char(50), nom char(50),
+CREATE TABLE Utilisateur (id_utilisateur char(32) PRIMARY KEY, token char(40), courriel char(50) UNIQUE, nom char(50),
         prenom char(50), mot_de_passe char(255));
 
 CREATE TABLE Locateur (id_utilisateur char(32) PRIMARY KEY, cote integer,
@@ -83,10 +83,10 @@ DELIMITER ;
 
 
 
-set @id1 = md5('Blo');
-set @id2 = md5('Cena');
-set @id3 = md5('Test');
-set @id4 = md5('Net');
+set @id1 = md5('joe.blo@mail.com');
+set @id2 = md5('john.cena@mail.com');
+set @id3 = md5('test@mail.com');
+set @id4 = md5('monsieurNet@mail.com');
 
 INSERT INTO Utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe)
     VALUES  (@id1, sha1(@id1), 'joe.blo@mail.com', 'Blo', 'Joe', ''),
