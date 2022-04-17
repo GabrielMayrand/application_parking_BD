@@ -1,4 +1,5 @@
 import collections
+from msilib import type_binary
 from flask import Flask, jsonify, request
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -33,12 +34,13 @@ def login():
 
         # Get user by username
         result = cur.execute(
-            "SELECT * FROM users WHERE courriel = %s", [courriel])
+            "SELECT mot_de_passe FROM utilisateur WHERE courriel = %s", [courriel])
 
         if result > 0:
             # Get stored hash
             data = cur.fetchone()
-            password_hash = data['password']
+            password_hash = data[0]
+
 
             # Compare passwords
             if(check_password_hash(password_hash, password)):
@@ -76,7 +78,7 @@ def signup():
 
         # Check if user already exists
         result = cur.execute(
-            "SELECT * FROM users WHERE courriel = %s", [courriel])
+            "SELECT * FROM utilisateur WHERE courriel = %s", [courriel])
 
         if result > 0:
             return jsonify({'message': 'Utilisateur déjà existant'})
@@ -115,12 +117,12 @@ def tokenInfo():
 
         # Get user by username
         result = cur.execute(
-            "SELECT * FROM utilisateur WHERE token = %s", [token])
+            "SELECT token FROM utilisateur WHERE token = %s", [token])
 
         if result > 0:
             # Get stored hash
             data = cur.fetchone()
-            token_hash = data['token']
+            token_hash = data[0]
 
             # Compare tokens
             if(token_hash == token):
