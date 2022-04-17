@@ -3,8 +3,8 @@ SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courr
 
 --post signup
 INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe)
-    VALUE (md5('$nom'), sha1(md5('$nom')), '$courriel', '$nom', '$prenom', '$mdp');
-SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE id_utilisateur = md5('$nom');
+    VALUE (md5('$courriel'), sha1(md5('$courriel')), '$courriel', '$nom', '$prenom', '$mdp');
+SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE id_utilisateur = md5('$courriel');
 
 --get tokenInfo
 SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = '$token';

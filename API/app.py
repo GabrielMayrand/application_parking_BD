@@ -83,7 +83,7 @@ def signup():
 
         # Create new user
         cur.execute("INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUES (md5(%s), sha1(md5(%s)), %s, %s, %s, %s)",
-                    (nom, nom, courriel, nom, prenom, password))
+                    (courriel, courriel, courriel, nom, prenom, password))
 
         # Commit to DB
         mysql.connection.commit()
@@ -313,7 +313,7 @@ def deletePlageHoraire(parkingId, plageHoraire):
         return 'Plage horaire supprimée'
 
 
-@ app.route('/user/<int:id>', methods=['GET', 'DELETE'])
+@ app.route('/user/<string:id>', methods=['GET', 'DELETE'])
 def utilisateur_id(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
@@ -337,7 +337,7 @@ def utilisateur_id(id):
         return 'Utilisateur supprimé'
 
 
-@ app.route('/user/<int:id>/parkingList', methods=['GET'])
+@ app.route('/user/<string:id>/parkingList', methods=['GET'])
 def utilisateur_id_parkingList(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
@@ -359,7 +359,7 @@ def utilisateur_id_parkingList(id):
         return jsonify(objParking)
 
 
-@ app.route('/user/<int:id>/cars', methods=['GET', 'POST'])
+@ app.route('/user/<string:id>/cars', methods=['GET', 'POST'])
 def utilisateur_id_cars(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
@@ -390,7 +390,7 @@ def utilisateur_id_cars(id):
         return 'Voiture ajoutée'
 
 
-@ app.route('/user/<int:id_utilisateur>/cars/<string:plaque>', methods=['PUT', 'DELETE'])
+@ app.route('/user/<string:id_utilisateur>/cars/<string:plaque>', methods=['PUT', 'DELETE'])
 def cars_id(id_utilisateur, plaque):
     if(request.method == 'PUT'):
         data = request.get_json()
@@ -407,7 +407,7 @@ def cars_id(id_utilisateur, plaque):
         return 'Voiture supprimée'
 
 
-@ app.route('/user/<int:id_utilisateur_locataire>/evalue/<int:id_utilisateur_locateur>', methods=['POST'])
+@ app.route('/user/<string:id_utilisateur_locataire>/evalue/<string:id_utilisateur_locateur>', methods=['POST'])
 def evalue(id_utilisateur_locataire, id_utilisateur_locateur):
     if(request.method == 'POST'):
         data = request.get_json()
