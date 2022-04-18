@@ -18,10 +18,11 @@ export class API {
     async getParkingList() {
         let HTTPOptions = {
             headers: {
+              // "Content-Type": "application/x-www-form-urlencoded",
             },
             method: "GET",
-            'Content-Type': 'application/json'
         };
+        // HTTPOptions.headers["Access-Control-Allow-Origin"] = "*";
         let URL = "parkingList";
         console.log(this.url + URL, HTTPOptions);
         await this.getAPIDataSecure(URL, HTTPOptions);

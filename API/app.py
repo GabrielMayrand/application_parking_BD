@@ -1,10 +1,13 @@
 import collections
 from msilib import type_binary
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+
+CORS(app)
 
 # Configure db
 app.config['MYSQL_HOST'] = 'localhost'
@@ -162,7 +165,7 @@ def parkingList():
         joursAvance = request.args.get('joursDavance')
         dateFin = request.args.get('dateFin')
         cur = mysql.connection.cursor()
-        cur.execute("call parkingList(%s, %s, %s, %s, %s, %s, %s)",
+        cur.execute("call select_parkingList(%s, %s, %s, %s, %s, %s, %s)",
                     (prixMin, prixMax, longueur, largeur, hauteur, joursAvance, dateFin))
         parking = cur.fetchall()
         objParking = []
