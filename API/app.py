@@ -1,6 +1,8 @@
 import collections
+from msilib import type_binary
 from flask import Flask, jsonify, request
 from flask_mysqldb import MySQL
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -9,8 +11,16 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'password'
 app.config['MYSQL_DB'] = 'application_parking'
+app.config['SECRET_KEY'] = 'thisissecret'
 
 mysql = MySQL(app)
+
+
+def get_token_from_request(requestHeaders):
+    token = requestHeaders.get('Authorization')
+    if token is None:
+        return None
+    return token.split(' ')[1]
 
 
 @app.route('/', methods=['GET'])
@@ -32,15 +42,15 @@ def login():
 
         # Get user by username
         result = cur.execute(
-            "SELECT * FROM users WHERE courriel = %s", [courriel])
+            "SELECT mot_de_passe FROM utilisateur WHERE courriel = %s", [courriel])
 
         if result > 0:
             # Get stored hash
             data = cur.fetchone()
-            password_hash = data['password']
+            password_hash = data[0]
 
             # Compare passwords
-            if(password_hash == password):
+            if(check_password_hash(password_hash, password)):
                 cur.execute(
                     "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courriel = %s", [courriel])
                 utilisateur = cur.fetchall()
@@ -68,21 +78,21 @@ def signup():
         courriel = data['courriel']
         nom = data['nom']
         prenom = data['prenom']
-        password = data['password']
+        password = generate_password_hash(data['password'])
 
         # Create cursor
         cur = mysql.connection.cursor()
 
         # Check if user already exists
         result = cur.execute(
-            "SELECT * FROM users WHERE courriel = %s", [courriel])
+            "SELECT * FROM utilisateur WHERE courriel = %s", [courriel])
 
         if result > 0:
             return jsonify({'message': 'Utilisateur déjà existant'})
 
         # Create new user
-        cur.execute("INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUES (md5(%s), sha1(md5(%s)), %s, %s, %s, %s)",
-                    (nom, nom, courriel, nom, prenom, password))
+        cur.execute("INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUES (md5(%s), sha1(%s), %s, %s, %s, %s)",
+                    (courriel, courriel, courriel, nom, prenom, password))
 
         # Commit to DB
         mysql.connection.commit()
@@ -106,25 +116,24 @@ def signup():
 @app.route('/tokenInfo', methods=['GET'])
 def tokenInfo():
     if(request.method == 'GET'):
-        # Get token from request
-        token = request.args.get('token')
+        auth_token = get_token_from_request(request.headers)
 
         # Create cursor
         cur = mysql.connection.cursor()
 
         # Get user by username
         result = cur.execute(
-            "SELECT * FROM utilisateur WHERE token = %s", [token])
+            "SELECT token FROM utilisateur WHERE token = %s", [auth_token])
 
         if result > 0:
             # Get stored hash
             data = cur.fetchone()
-            token_hash = data['token']
+            token_hash = data[0]
 
             # Compare tokens
-            if(token_hash == token):
+            if(token_hash == auth_token):
                 cur.execute(
-                    "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = %s", [token])
+                    "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = %s", [auth_token])
                 utilisateur = cur.fetchall()
                 objUtilisateur = []
                 for row in utilisateur:
@@ -145,8 +154,16 @@ def tokenInfo():
 @app.route('/parkingList', methods=['GET'])
 def parkingList():
     if(request.method == 'GET'):
+        prixMin = request.args.get('prixMin')
+        prixMax = request.args.get('prixMax')
+        longueur = request.args.get('longueur')
+        largeur = request.args.get('largeur')
+        hauteur = request.args.get('hauteur')
+        joursAvance = request.args.get('joursDavance')
+        dateFin = request.args.get('dateFin')
         cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM stationnement")
+        cur.execute("call parkingList(%s, %s, %s, %s, %s, %s, %s)",
+                    (prixMin, prixMax, longueur, largeur, hauteur, joursAvance, dateFin))
         parking = cur.fetchall()
         objParking = []
         for row in parking:
@@ -163,10 +180,7 @@ def parkingList():
         return jsonify(objParking)
 
 
-# parkinglist filters
-
-
-@app.route('/parking/<int:id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@ app.route('/parking/<int:id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def parking(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
@@ -187,41 +201,43 @@ def parking(id):
             objParking.append(d)
         return jsonify(objParking)
     elif(request.method == 'POST'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO stationnement (id_stationnement, prix, longueur, largeur, hauteur, emplacement, jours_d_avance, date_fin) VALUE (%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (id, request.json['prix'], request.json['longueur'], request.json['largeur'], request.json['hauteur'], request.json['emplacement'], request.json['jours_d_avance'], request.json['date_fin']))
+                    (id, data['prix'], data['longueur'], data['largeur'], data['hauteur'], data['emplacement'], data['jours_d_avance'], data['date_fin']))
         cur.execute("INSERT INTO gerer (id_stationnement, id_utilisateur) VALUE (%s, %s)",
-                    (id, request.json['id_utilisateur']))
+                    (id, data['id_utilisateur']))
         cur.execute(
-            "INSERT INTO Locateur (id_utilisateur, cote) VALUE (%s, NULL)", [id])
+            "INSERT INTO Locateur (id_utilisateur, cote) VALUE (%s, NULL) ON DUPLICATE KEY UPDATE id_utilisateur = id_utilisateur", [data['id_utilisateur']])
         mysql.connection.commit()
         return 'Parking ajoutée'
     elif(request.method == 'PUT'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("UPDATE stationnement SET prix=%s, longueur=%s, largeur=%s, hauteur=%s, emplacement=%s, jours_d_avance=%s, date_fin=%s WHERE id_stationnement=%s",
-                    (request.json['prix'], request.json['longueur'], request.json['largeur'], request.json['hauteur'], request.json['emplacement'], request.json['jours_d_avance'], request.json['date_fin'], id))
+                    (data['prix'], data['longueur'], data['largeur'], data['hauteur'], data['emplacement'], data['jours_d_avance'], data['date_fin'], id))
         mysql.connection.commit()
         return 'Parking updated'
     elif(request.method == 'DELETE'):
         cur = mysql.connection.cursor()
         cur.execute(
-            "DELETE FROM stationnement WHERE id_stationnement=%s", [id])
-        cur.execute(
-            "DELETE FROM gerer WHERE id_stationnement=%s", [id])
-        cur.execute(
-            "DELETE FROM possede WHERE id_stationnement=%s", [id])
+            "call delete_stationnement(%s)", [id])
         mysql.connection.commit()
         return 'Parking supprimée'
 
 
-# filters
-@app.route('/parking/<int:parkingId>/plageHoraires', methods=['GET'])
+@ app.route('/parking/<int:parkingId>/plageHoraires', methods=['GET'])
 def plageHoraires(parkingId):
     if(request.method == 'GET'):
-        debut = request.args.get('debut')
-        fin = request.args.get('fin')
+        debut = (request.args.get('debut'))
+        if(debut is not None):
+            debut.replace("%20", " ")
+        fin = (request.args.get('fin'))
+        if(fin is not None):
+            fin.replace("%20", " ")
         cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s) AND %s >= date_arrivee AND %s <= date_depart", (parkingId, debut, fin))
+        cur.execute("call select_plageHoraire(%s, %s, %s)",
+                    (debut, fin, parkingId))
         plageHoraires = cur.fetchall()
         objPlageHoraires = []
         for row in plageHoraires:
@@ -233,82 +249,69 @@ def plageHoraires(parkingId):
         return jsonify(objPlageHoraires)
 
 
-@app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/reserver', methods=['POST'])
-def reserver(parkingId, plageHoraire):
+@ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/reserver', methods=['POST'])
+def reserver(parkingId, plageHoraireId):
     if(request.method == 'POST'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart) VALUE (%s, %s, %s)",
-                    (plageHoraire, request.json['date_arrivee'], request.json['date_depart']))
-        cur.execute("INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUE (%s, %s)",
-                    (plageHoraire, parkingId))
-        cur.execute("INSERT INTO Reservation (id_plage_horaire, id_utilisateur) VALUE (%s, %s)",
-                    (plageHoraire, request.json['id_utilisateur']))
+        cur.execute("call insert_plageHoraire_reserver(%s, %s, %s, %s, %s)",
+                    (data['date_arrivee'], data['date_depart'], parkingId, plageHoraireId, data['id_utilisateur']))
         mysql.connection.commit()
         return 'Plage reservation ajoutée'
 
 
-@app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/inoccupable', methods=['POST'])
-def inoccupable(parkingId, plageHoraire):
+@ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/inoccupable', methods=['POST'])
+def inoccupable(parkingId, plageHoraireId):
     if(request.method == 'POST'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart) VALUE (%s, %s, %s)",
-                    (plageHoraire, request.json['date_arrivee'], request.json['date_depart']))
-        cur.execute("INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUE (%s, %s)",
-                    (plageHoraire, parkingId))
-        cur.execute("INSERT INTO Inoccupable (id_plage_horaire, id_utilisateur) VALUE (%s, %s)",
-                    (plageHoraire, request.json['id_utilisateur']))
+        cur.execute("call insert_plageHoraire_inoccupable(%s, %s, %s, %s, %s)",
+                    (data['date_arrivee'], data['date_depart'], parkingId, plageHoraireId, data['id_utilisateur']))
         mysql.connection.commit()
         return 'Plage inoccupable ajoutée'
 
 
-@app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>', methods=['DELETE'])
-def deletePlageHoraire(parkingId, plageHoraire):
+@ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>', methods=['DELETE'])
+def deletePlageHoraire(parkingId, plageHoraireId):
     if(request.method == 'DELETE'):
         cur = mysql.connection.cursor()
         cur.execute(
-            "DELETE FROM Reservation WHERE id_plage_horaire=%s", [plageHoraire])
-        cur.execute(
-            "DELETE FROM Inoccupable WHERE id_plage_horaire=%s", [plageHoraire])
-        cur.execute(
-            "DELETE FROM Plage_horaire WHERE id_plage_horaire=%s", [plageHoraire])
-        cur.execute(
-            "DELETE FROM Possede WHERE id_stationnement = %s AND id_plage_horaire=%s", (parkingId, plageHoraire))
+            "call delete_plageHoraire ((SELECT id_plage_horaire FROM Possede WHERE id_plage_horaire = %s AND id_stationnement = %s))",
+            (plageHoraireId, parkingId))
         mysql.connection.commit()
         return 'Plage horaire supprimée'
 
 
-@app.route('/user/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+@ app.route('/user/<string:id>', methods=['GET', 'DELETE'])
 def utilisateur_id(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
-        ####################################
         utilisateur = cur.execute(
-            "SELECT IF (%s IN (SELECT id_utilisateur FROM Locateur), (SELECT * FROM Locateur WHERE id_utilisateur = %s), (SELECT * FROM Locataire WHERE id_utilisateur = %s))", (id, id, id))
+            "SELECT * FROM (SELECT id_utilisateur, courriel, nom, prenom FROM Utilisateur WHERE id_utilisateur = %s) AS infos INNER JOIN (SELECT IF (%s IN (SELECT id_utilisateur FROM Locateur), (SELECT cote FROM Locateur WHERE id_utilisateur = %s), NULL)) AS cote", (id, id, id))
         utilisateur = cur.fetchall()
         objUtilisateur = []
         for row in utilisateur:
             d = collections.OrderedDict()
-            d['courriel'] = row[0]
-            d['nom'] = row[1]
-            d['prenom'] = row[2]
-            d['id_utilisateur'] = row[4]
-            d['cote'] = row[5]
+            d['id_utilisateur'] = row[0]
+            d['courriel'] = row[1]
+            d['nom'] = row[2]
+            d['prenom'] = row[3]
+            if row[4] is not None:
+                d['cote'] = row[4]
             objUtilisateur.append(d)
         return jsonify(objUtilisateur)
-    if(request.method == 'PUT'):
-        cur = mysql.connection.cursor()
-        cur.execute("UPDATE utilisateur SET nom=%s, prenom=%s, email=%s, mot_de_passe=%s WHERE id_utilisateur=%s",
-                    (request.json['nom'], request.json['prenom'], request.json['email'], request.json['mot_de_passe'], id))
-        mysql.connection.commit()
-        return 'Utilisateur modifié'
     if(request.method == 'DELETE'):
+        auth_token = get_token_from_request(request.headers)
         cur = mysql.connection.cursor()
-        cur.execute("DELETE FROM Utilisateur WHERE id_utilisateur=%s", [id])
+        if auth_token is None:
+            return 'Token manquant'
+        cur.execute(
+            "call delete_user(%s);", [id])
         mysql.connection.commit()
         return 'Utilisateur supprimé'
 
 
-@app.route('/user/<int:id>/parkingList', methods=['GET'])
+@ app.route('/user/<string:id>/parkingList', methods=['GET'])
 def utilisateur_id_parkingList(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
@@ -330,12 +333,12 @@ def utilisateur_id_parkingList(id):
         return jsonify(objParking)
 
 
-@app.route('/user/<int:id>/cars', methods=['GET', 'POST'])
+@ app.route('/user/<string:id>/cars', methods=['GET', 'POST'])
 def utilisateur_id_cars(id):
     if(request.method == 'GET'):
         cur = mysql.connection.cursor()
         vehicule = cur.execute(
-            "SELECT * FROM vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_utilisateur = %s", [id])
+            "SELECT * FROM vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_utilisateur = %s)", [id])
         vehicule = cur.fetchall()
         objvehicule = []
         for row in vehicule:
@@ -349,38 +352,41 @@ def utilisateur_id_cars(id):
             objvehicule.append(d)
         return jsonify(objvehicule)
     if(request.method == 'POST'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO Vehicule (plaque, modele, couleur, longueur, largeur, hauteur) VALUE (%s, %s, %s, %s, %s, %s)",
-                    (request.json['plaque'], request.json['modele'], request.json['couleur'], request.json['longueur'], request.json['largeur'], request.json['hauteur']))
+                    (data['plaque'], data['modele'], data['couleur'], data['longueur'], data['largeur'], data['hauteur']))
         cur.execute("INSERT INTO Appartient (plaque, id_utilisateur) VALUE (%s, %s)",
-                    (request.json['plaque'], id))
-        cur.execute("INSERT INTO locataire (id_utilisateur) VALUE (%s)", [id])
+                    (data['plaque'], id))
+        cur.execute(
+            "INSERT INTO locataire (id_utilisateur) VALUE (%s) ON DUPLICATE KEY UPDATE id_utilisateur = id_utilisateur", [id])
         mysql.connection.commit()
         return 'Voiture ajoutée'
 
 
-@app.route('/user/<int:id_utilisateur>/cars/<string:plaque>', methods=['PUT', 'DELETE'])
-def cars_id(id_utilisateur, plaque):
+@ app.route('/user/<string:id_utilisateur>/cars/<string:plaque>', methods=['PUT', 'DELETE'])
+def cars_id(plaque):
     if(request.method == 'PUT'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("UPDATE Vehicule SET modele=%s, couleur=%s, longueur=%s, largeur=%s, hauteur=%s WHERE plaque=%s",
-                    (request.json['modele'], request.json['couleur'], request.json['longueur'], request.json['largeur'], request.json['hauteur'], plaque))
+                    (data['modele'], data['couleur'], data['longueur'], data['largeur'], data['hauteur'], plaque))
         mysql.connection.commit()
         return 'Voiture modifiée'
     if(request.method == 'DELETE'):
         cur = mysql.connection.cursor()
-        cur.execute("DELETE FROM Vehicule WHERE plaque=%s", [plaque])
-        cur.execute("DELETE FROM Appartient WHERE plaque=%s", [plaque])
+        cur.execute("call delete_voiture(%s)", [plaque])
         mysql.connection.commit()
         return 'Voiture supprimée'
 
 
-@app.route('/user/<int:id_utilisateur_locataire>/evalue/<int:id_utilisateur_locateur>', methods=['POST'])
+@ app.route('/user/<string:id_utilisateur_locataire>/evalue/<string:id_utilisateur_locateur>', methods=['POST'])
 def evalue(id_utilisateur_locataire, id_utilisateur_locateur):
     if(request.method == 'POST'):
+        data = request.get_json()
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO Evalue (id_utilisateur_locataire, id_utilisateur_locateur, cote) VALUE (%s, %s, %s)",
-                    (id_utilisateur_locataire, id_utilisateur_locateur, request.json['cote']))
+                    (id_utilisateur_locataire, id_utilisateur_locateur, data['cote']))
         mysql.connection.commit()
         return 'Evaluation ajoutée'
 
