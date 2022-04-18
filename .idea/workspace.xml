@@ -2,10 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="65f22a2e-b07a-401c-ab29-80e6685598a8" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/Run.txt" beforeDir="false" afterPath="$PROJECT_DIR$/API/Run.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/API/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/utility/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/utility/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BD/CreateTables.sql" beforeDir="false" afterPath="$PROJECT_DIR$/BD/CreateTables.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BD/Queries.sql" beforeDir="false" afterPath="$PROJECT_DIR$/BD/Queries.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +29,8 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -38,6 +41,7 @@
       <option name="presentableId" value="Default" />
       <updated>1649793725249</updated>
       <workItem from="1649793726583" duration="418000" />
+      <workItem from="1650311492029" duration="1978000" />
     </task>
     <servers />
   </component>
