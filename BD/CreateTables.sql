@@ -3,6 +3,7 @@ CREATE DATABASE application_parking;
 use application_parking;
 
 
+
 CREATE TABLE Utilisateur (id_utilisateur char(32) PRIMARY KEY, token char(40), courriel char(50) UNIQUE, nom char(50),
         prenom char(50), mot_de_passe char(255));
 
@@ -19,13 +20,13 @@ CREATE TABLE Vehicule (plaque char(6) PRIMARY KEY, modele char(50), couleur char
     longueur double, largeur double, hauteur double);
 
 CREATE TABLE Appartient (id_utilisateur char(32) NOT NULL REFERENCES Utilisateur(id_utilisateur),
-    plaque char(6) NOT NULL REFERENCES Vehicule(plaque));
+    plaque char(6) NOT NULL UNIQUE REFERENCES Vehicule(plaque));
 
 CREATE TABLE Stationnement (id_stationnement char(20) PRIMARY KEY, prix double, longueur double, largeur double,
     hauteur double, emplacement char(50), jours_d_avance integer, date_fin date);
 
 CREATE TABLE Gerer (id_utilisateur char(32) NOT NULL REFERENCES Utilisateur(id_utilisateur),
-    id_stationnement char(20) NOT NULL REFERENCES Stationnement(id_stationnement));
+    id_stationnement char(20) NOT NULL UNIQUE REFERENCES Stationnement(id_stationnement));
 
 CREATE TABLE Plage_horaire (id_plage_horaire char(20) PRIMARY KEY, date_arrivee datetime(0), date_depart datetime(0));
 
@@ -36,13 +37,32 @@ CREATE TABLE Inoccupable (id_plage_horaire char(20) PRIMARY KEY,
     FOREIGN KEY(id_plage_horaire) REFERENCES Plage_horaire(id_plage_horaire));
 
 CREATE TABLE Louer (id_utilisateur char(32) NOT NULL REFERENCES Utilisateur(id_utilisateur),
-    id_plage_horaire char(20) REFERENCES Plage_horaire(id_plage_horaire));
+    id_plage_horaire char(20) UNIQUE REFERENCES Plage_horaire(id_plage_horaire));
 
 CREATE TABLE Retirer (id_utilisateur char(32) NOT NULL REFERENCES Utilisateur(id_utilisateur),
-    id_plage_horaire char(20) REFERENCES Plage_horaire(id_plage_horaire));
+    id_plage_horaire char(20) UNIQUE REFERENCES Plage_horaire(id_plage_horaire));
 
-CREATE TABLE Possede (id_plage_horaire char(20) NOT NULL REFERENCES Plage_horaire(id_plage_horaire),
+CREATE TABLE Possede (id_plage_horaire char(20) NOT NULL UNIQUE REFERENCES Plage_horaire(id_plage_horaire),
     id_stationnement char(20) REFERENCES Stationnement(id_stationnement));
+
+
+
+CREATE INDEX idx_courriel_utilisateur ON Utilisateur(courriel);
+CREATE INDEX idx_token_utilisateur ON Utilisateur(token);
+
+CREATE INDEX idx_cote_locateur ON Locateur(cote);
+
+CREATE INDEX idx_dimension_stationnement ON Stationnement (longueur, largeur, hauteur);
+CREATE INDEX idx_emplacement_stationnement ON Stationnement (emplacement);
+CREATE INDEX idx_dateFin_stationnement ON Stationnement (date_fin);
+CREATE INDEX idx_prix_stationnement ON Stationnement (prix);
+
+CREATE INDEX idx_dimension_vehicule ON Vehicule (longueur, largeur, hauteur);
+CREATE INDEX idx_modele_vehicule ON Vehicule (modele);
+CREATE INDEX idx_couleur_vehicule ON Vehicule (couleur);
+
+CREATE INDEX idx_plageHoraire_dateDebut ON Plage_horaire (date_arrivee);
+CREATE INDEX idx_plageHoraire_dateFin ON Plage_horaire (date_depart);
 
 
 

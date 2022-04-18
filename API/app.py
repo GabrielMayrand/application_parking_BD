@@ -334,7 +334,7 @@ def utilisateur_id(id):
             if auth_token is None:
                 return 'Token manquant'
             cur.execute(
-                "call delete_utilisateur(%s);", [id])
+                "call delete_utilisateur(%s, %s);", (id, auth_token))
             mysql.connection.commit()
             return 'Utilisateur supprimé'
     except Exception as e:

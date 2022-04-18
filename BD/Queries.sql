@@ -3,14 +3,14 @@ SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courr
 
 #post signup
 INSERT INTO utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe)
-    VALUE (md5('$courriel'), sha1(md5('$courriel')), '$courriel', '$nom', '$prenom', '$mdp');
-SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE id_utilisateur = md5('$courriel');
+    VALUE (md5('$courriel'), sha1('$courriel'), '$courriel', '$nom', '$prenom', '$mdp');
+SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courriel = '$courriel';
 
 #get tokenInfo
 SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token = '$token';
 
 #get parkingList
-call select_parkingList('$prixMin', '$prixMax', '$longueur', '$largeur', '$hauteur');
+call select_parkingList('$prixMin', '$prixMax', '$longueur', '$largeur', '$hauteur', '$joursDavance', '$dateFin');
 
 #get parkingListId
 SELECT * FROM stationnement WHERE id_stationnement = '$id_stationnement';
@@ -44,7 +44,7 @@ INNER JOIN (SELECT IF ('$id_utilisateur' IN (SELECT id_utilisateur FROM Locateur
     (SELECT cote FROM Locateur WHERE id_utilisateur = '$id_utilisateur'), NULL)) AS cote;
 
 #delete user by id
-call delete_utilisateur('$id_utilisateur');
+call delete_utilisateur('$id_utilisateur', '$token');
 
 #get parking by user id
 SELECT * FROM stationnement WHERE id_stationnement IN
@@ -66,3 +66,5 @@ call delete_voiture('$plaque');
 #post Evalue id_utilisateur_locateur by id_utilisateur_locataire
 INSERT INTO Evalue (id_utilisateur_locateur, id_utilisateur_locataire, cote)
     VALUE ('$id_utilisateur_locateur', '$id_utilisateur_locataire', '$cote');
+
+SHOW INDEX FROM stationnement;
