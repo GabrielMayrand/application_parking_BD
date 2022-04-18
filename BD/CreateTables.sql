@@ -56,18 +56,97 @@ END
 DELIMITER ;
 
 DELIMITER //
-CREATE TRIGGER `Delete_utilisateur` BEFORE DELETE ON `Utilisateur` FOR EACH ROW
+CREATE PROCEDURE select_parkingList (IN p_prixMin double, p_prixMax double, p_longueur double, p_largeur double, p_hauteur double,
+    p_joursAvance integer, p_dateFin date)
+BEGIN
+    DROP TABLE IF EXISTS tempStationnement;
+    CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement);
+    SELECT * FROM tempStationnement;
+    IF p_prixMin is not NULL and p_prixMax is not NULL THEN
+        DELETE FROM tempStationnement WHERE id_stationnement NOT IN
+                                        (SELECT id_stationnement FROM stationnement WHERE p_prixMin <= prix AND p_prixMax >= prix);
+    END IF ;
+    IF p_longueur is not NULL and p_largeur is not NULL and p_hauteur is not NULL THEN
+        DELETE FROM tempStationnement WHERE id_stationnement NOT IN
+                                        (SELECT id_stationnement FROM stationnement WHERE longueur <= p_longueur AND largeur <= p_largeur AND hauteur <= p_hauteur);
+    END IF ;
+    IF p_joursAvance is not NULL THEN
+        DELETE FROM tempStationnement WHERE id_stationnement NOT IN
+                                        (SELECT id_stationnement FROM stationnement WHERE jours_d_avance <= p_joursAvance);
+    END IF ;
+    IF p_dateFin is not NULL THEN
+        DELETE FROM tempStationnement WHERE id_stationnement NOT IN
+                                        (SELECT id_stationnement FROM stationnement WHERE date_fin >= p_dateFin);
+    END IF ;
+    SELECT * FROM tempStationnement;
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE select_plageHoraire (IN p_debut datetime, p_fin datetime, p_id_stationnement char(20))
+BEGIN
+    DROP TABLE IF EXISTS tempStationnement;
+    CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement);
+    SELECT * FROM tempStationnement;
+    IF p_debut is not NULL and p_fin is not NULL THEN
+        SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
+                                          (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement) AND p_debut >= date_arrivee AND p_fin <= date_depart;
+    ELSEIF p_debut is not NULL and p_fin is NULL THEN
+        SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
+                                          (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement) AND p_debut >= date_arrivee;
+    ELSEIF p_debut is NULL and p_fin is not NULL THEN
+        SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
+                                          (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement) AND p_fin <= date_depart;
+    ELSE
+        SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
+                                          (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement);
+    END IF ;
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE insert_plageHoraire_reserver (IN p_debut datetime, p_fin datetime, p_id_stationnement char(20), p_id_plage_horaire char(20), p_id_utilisateur char(32))
+BEGIN
+    INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart)
+        VALUE (p_id_plage_horaire, p_debut, p_fin);
+    INSERT INTO possede (id_plage_horaire, id_stationnement)
+        VALUE (p_id_plage_horaire, p_id_stationnement);
+    INSERT INTO louer (id_plage_horaire, id_utilisateur)
+        VALUE (p_id_plage_horaire, p_id_utilisateur);
+    INSERT INTO Reservation (id_plage_horaire)
+        VALUE (p_id_plage_horaire);
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE insert_plageHoraire_inoccupable (IN p_debut datetime, p_fin datetime, p_id_stationnement char(20), p_id_plage_horaire char(20), p_id_utilisateur char(32))
+BEGIN
+    INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart)
+        VALUE (p_id_plage_horaire, p_debut, p_fin);
+    INSERT INTO possede (id_plage_horaire, id_stationnement)
+        VALUE (p_id_plage_horaire, p_id_stationnement);
+    INSERT INTO Retirer (id_plage_horaire, id_utilisateur)
+        VALUE (p_id_plage_horaire, p_id_utilisateur);
+    INSERT INTO Inoccupable (id_plage_horaire)
+        VALUE (p_id_plage_horaire);
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE delete_utilisateur (IN p_id_utilisateur char(32), p_token char(40))
 BEGIN
     DECLARE cur_is_done BOOLEAN DEFAULT FALSE;
     DECLARE cur_id_parking CHAR(20);
+    DECLARE cur_id_voiture CHAR(6);
+    DECLARE cur_parking CURSOR FOR SELECT id_stationnement FROM Gerer WHERE id_utilisateur = p_id_utilisateur;
+    DECLARE cur_voiture CURSOR FOR SELECT plaque FROM Appartient WHERE id_utilisateur = p_id_utilisateur;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET cur_is_done = TRUE;
 
-    DECLARE id_utilisateur_to_delete CHAR(32);
-    SET id_utilisateur_to_delete = OLD.id_utilisateur;
-
-    DECLARE cur_parking CURSOR FOR SELECT id_stationnement FROM Gerer WHERE id_utilisateur = id_utilisateur_to_delete;
-
-    IF (SELECT token FROM Utilisateur WHERE id_utilisateur = id_utilisateur_to_delete) = OLD.token THEN
+    IF (SELECT token FROM Utilisateur WHERE id_utilisateur = p_id_utilisateur) = p_token THEN
         OPEN cur_parking;
         boucle: LOOP
             FETCH cur_parking INTO cur_id_parking;
@@ -78,11 +157,24 @@ BEGIN
         END LOOP boucle;
         CLOSE cur_parking;
 
-        DELETE FROM Vehicule WHERE plaque IN (SELECT plaque FROM Appartient WHERE id_utilisateur = id_utilisateur_to_delete);
-        DELETE FROM Appartient WHERE id_utilisateur = id_utilisateur_to_delete;
-        DELETE FROM Evalue WHERE id_utilisateur_locataire = id_utilisateur_to_delete or id_utilisateur_locateur = id_utilisateur_to_delete;
-        DELETE FROM Locataire WHERE id_utilisateur = id_utilisateur_to_delete;
-        DELETE FROM Locateur WHERE id_utilisateur = id_utilisateur_to_delete;
+        SET cur_is_done = FALSE;
+
+        OPEN cur_voiture;
+        boucle: LOOP
+            FETCH cur_voiture INTO cur_id_voiture;
+            IF cur_is_done THEN
+                LEAVE boucle;
+            END IF;
+            call delete_voiture(cur_id_voiture);
+        END LOOP boucle;
+        CLOSE cur_voiture;
+
+        DELETE FROM Evalue WHERE id_utilisateur_locataire = p_id_utilisateur or id_utilisateur_locateur = p_id_utilisateur;
+        DELETE FROM Locataire WHERE id_utilisateur = p_id_utilisateur;
+        DELETE FROM Locateur WHERE id_utilisateur = p_id_utilisateur;
+        DELETE FROM Utilisateur WHERE id_utilisateur = p_id_utilisateur;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Token invalide';
     END IF;
 END
 //
@@ -119,6 +211,15 @@ BEGIN
         call delete_plageHoraire (cur_id_plage_horaire);
    END LOOP boucle;
    CLOSE cur;
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE delete_voiture (IN p_voiture_id char(6))
+BEGIN
+    DELETE FROM vehicule WHERE plaque = p_voiture_id;
+    DELETE FROM Appartient WHERE plaque = p_voiture_id;
 END
 //
 DELIMITER ;

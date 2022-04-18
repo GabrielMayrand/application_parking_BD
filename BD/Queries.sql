@@ -92,7 +92,7 @@ INNER JOIN (SELECT IF ('$id_utilisateur' IN (SELECT id_utilisateur FROM Locateur
     (SELECT cote FROM Locateur WHERE id_utilisateur = '$id_utilisateur'), NULL)) AS cote;
 
 --delete user by id
-DELETE FROM Utilisateur WHERE id_utilisateur = '$id_utilisateur' AND token = '$token';
+call delete_user('$id_utilisateur');
 
 --get parking by user id
 SELECT * FROM stationnement WHERE id_stationnement IN
@@ -112,8 +112,7 @@ UPDATE vehicule SET modele = '$modele', couleur = '$couleur', longueur = $longue
     WHERE plaque = '$plaque';
 
 --delete vehicule by plaque
-DELETE FROM vehicule WHERE plaque = '$plaque';
-DELETE FROM Appartient WHERE plaque = '$plaque';
+call delete_voiture('$plaque');
 
 --post Evalue id_utilisateur_locateur by id_utilisateur_locataire
 INSERT INTO Evalue (id_utilisateur_locateur, id_utilisateur_locataire, cote)

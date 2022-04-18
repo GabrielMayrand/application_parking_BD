@@ -16,6 +16,13 @@ app.config['SECRET_KEY'] = 'thisissecret'
 mysql = MySQL(app)
 
 
+def get_token_from_request(requestHeaders):
+    token = requestHeaders.get('Authorization')
+    if token is None:
+        return None
+    return token.split(' ')[1]
+
+
 @app.route('/', methods=['GET'])
 def home():
     if(request.method == 'GET'):
@@ -90,11 +97,6 @@ def signup():
         # Commit to DB
         mysql.connection.commit()
 
-        # token
-        """token = encode_auth_token(sha1(courriel))
-        cur.execute(
-            "UPDATE utilisateur SET token = %s WHERE courriel = %s", (decode_auth_token(token), courriel))"""
-
         # Return user info
         cur.execute(
             "SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE courriel = %s", [courriel])
@@ -114,12 +116,7 @@ def signup():
 @app.route('/tokenInfo', methods=['GET'])
 def tokenInfo():
     if(request.method == 'GET'):
-        # Get token from request
-        auth_header = request.headers.get('Authorization')
-        if auth_header:
-            auth_token = auth_header.split(" ")[1]
-        else:
-            auth_token = ''
+        auth_token = get_token_from_request(request.headers)
 
         # Create cursor
         cur = mysql.connection.cursor()
@@ -154,7 +151,6 @@ def tokenInfo():
             return jsonify({'message': 'Utilisateur non trouvé'})
 
 
-# parkinglist filters
 @app.route('/parkingList', methods=['GET'])
 def parkingList():
     if(request.method == 'GET'):
@@ -166,22 +162,8 @@ def parkingList():
         joursAvance = request.args.get('joursDavance')
         dateFin = request.args.get('dateFin')
         cur = mysql.connection.cursor()
-        cur.execute("DROP TABLE IF EXISTS tempStationnement")
-        cur.execute(
-            "CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement)")
-        if prixMin is not None and prixMax is not None:
-            cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE %s <= prix AND %s >= prix)", (prixMin, prixMax))
-        if longueur is not None and largeur is not None and hauteur is not None:
-            cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE %s <= longueur AND %s <= largeur AND %s <= hauteur)", (longueur, largeur, hauteur))
-        if joursAvance is not None:
-            cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE jours_d_avance <= %s)", [joursAvance])
-        if dateFin is not None:
-            cur.execute(
-                "DELETE FROM tempStationnement WHERE id_stationnement NOT IN (SELECT id_stationnement FROM stationnement WHERE date_fin >= %s)", [dateFin])
-        cur.execute("SELECT * FROM tempStationnement")
+        cur.execute("call parkingList(%s, %s, %s, %s, %s, %s, %s)",
+                    (prixMin, prixMax, longueur, largeur, hauteur, joursAvance, dateFin))
         parking = cur.fetchall()
         objParking = []
         for row in parking:
@@ -244,29 +226,18 @@ def parking(id):
         return 'Parking supprimée'
 
 
-# filters
 @ app.route('/parking/<int:parkingId>/plageHoraires', methods=['GET'])
 def plageHoraires(parkingId):
     if(request.method == 'GET'):
         debut = (request.args.get('debut'))
-        if(debut is not None): 
+        if(debut is not None):
             debut.replace("%20", " ")
         fin = (request.args.get('fin'))
         if(fin is not None):
             fin.replace("%20", " ")
         cur = mysql.connection.cursor()
-        if debut is not None and fin is not None:
-            cur.execute(
-                "SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s) AND %s >= date_arrivee AND %s <= date_depart", (parkingId, debut, fin))
-        elif debut is not None and fin is None:
-            cur.execute(
-                "SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s) AND %s >= date_arrivee", (parkingId, debut))
-        elif debut is None and fin is not None:
-            cur.execute(
-                "SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s) AND %s <= date_depart", (parkingId, fin))
-        else:
-            cur.execute(
-                "SELECT * FROM Plage_horaire WHERE id_plage_horaire IN (SELECT id_plage_horaire FROM possede WHERE id_stationnement=%s)", [parkingId])
+        cur.execute("call select_plageHoraire(%s, %s, %s)",
+                    (debut, fin, parkingId))
         plageHoraires = cur.fetchall()
         objPlageHoraires = []
         for row in plageHoraires:
@@ -283,13 +254,8 @@ def reserver(parkingId, plageHoraireId):
     if(request.method == 'POST'):
         data = request.get_json()
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart) VALUE (%s, %s, %s)",
-                    (plageHoraireId, data['date_arrivee'], data['date_depart']))
-        cur.execute("INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUE (%s, %s)",
-                    (plageHoraireId, parkingId))
-        cur.execute("INSERT INTO louer (id_plage_horaire, id_utilisateur) VALUE (%s, %s)", 
-                    (plageHoraireId, data['id_utilisateur']))
-        cur.execute("INSERT INTO Reservation (id_plage_horaire) VALUE (%s)", [plageHoraireId])
+        cur.execute("call insert_plageHoraire_reserver(%s, %s, %s, %s, %s)",
+                    (data['date_arrivee'], data['date_depart'], parkingId, plageHoraireId, data['id_utilisateur']))
         mysql.connection.commit()
         return 'Plage reservation ajoutée'
 
@@ -299,13 +265,8 @@ def inoccupable(parkingId, plageHoraireId):
     if(request.method == 'POST'):
         data = request.get_json()
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart) VALUE (%s, %s, %s)",
-                    (plageHoraireId, data['date_arrivee'], data['date_depart']))
-        cur.execute("INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUE (%s, %s)",
-                    (plageHoraireId, parkingId))
-        cur.execute("INSERT INTO Retirer (id_plage_horaire, id_utilisateur) VALUE (%s, %s)",
-                    (plageHoraireId, data['id_utilisateur']))
-        cur.execute("INSERT INTO Inoccupable (id_plage_horaire) VALUE (%s)", [plageHoraireId])
+        cur.execute("call insert_plageHoraire_inoccupable(%s, %s, %s, %s, %s)",
+                    (data['date_arrivee'], data['date_depart'], parkingId, plageHoraireId, data['id_utilisateur']))
         mysql.connection.commit()
         return 'Plage inoccupable ajoutée'
 
@@ -315,7 +276,7 @@ def deletePlageHoraire(parkingId, plageHoraireId):
     if(request.method == 'DELETE'):
         cur = mysql.connection.cursor()
         cur.execute(
-            "call delete_plageHoraire ((SELECT id_plage_horaire FROM Possede WHERE id_plage_horaire = %s AND id_stationnement = %s))", 
+            "call delete_plageHoraire ((SELECT id_plage_horaire FROM Possede WHERE id_plage_horaire = %s AND id_stationnement = %s))",
             (plageHoraireId, parkingId))
         mysql.connection.commit()
         return 'Plage horaire supprimée'
@@ -340,21 +301,12 @@ def utilisateur_id(id):
             objUtilisateur.append(d)
         return jsonify(objUtilisateur)
     if(request.method == 'DELETE'):
-        # Get token from request
-        auth_header = request.headers.get('Authorization')
-        if auth_header:
-            auth_token = auth_header.split(" ")[1]
-        else:
-            auth_token = ''
+        auth_token = get_token_from_request(request.headers)
         cur = mysql.connection.cursor()
         if auth_token is None:
             return 'Token manquant'
-        cur.execute("SELECT id_utilisateur FROM Utilisateur WHERE token = %s", [auth_token])
-        utilisateur = cur.fetchone()
-        if utilisateur is None:
-            return 'Token invalide'
         cur.execute(
-            "DELETE FROM Utilisateur WHERE id_utilisateur = %s AND token = %s", (id, auth_token))
+            "call delete_user(%s);", [id])
         mysql.connection.commit()
         return 'Utilisateur supprimé'
 
@@ -413,7 +365,7 @@ def utilisateur_id_cars(id):
 
 
 @ app.route('/user/<string:id_utilisateur>/cars/<string:plaque>', methods=['PUT', 'DELETE'])
-def cars_id(id_utilisateur, plaque):
+def cars_id(plaque):
     if(request.method == 'PUT'):
         data = request.get_json()
         cur = mysql.connection.cursor()
@@ -423,8 +375,7 @@ def cars_id(id_utilisateur, plaque):
         return 'Voiture modifiée'
     if(request.method == 'DELETE'):
         cur = mysql.connection.cursor()
-        cur.execute("DELETE FROM Vehicule WHERE plaque=%s", [plaque])
-        cur.execute("DELETE FROM Appartient WHERE plaque=%s", [plaque])
+        cur.execute("call delete_voiture(%s)", [plaque])
         mysql.connection.commit()
         return 'Voiture supprimée'
 
