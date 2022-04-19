@@ -2,7 +2,7 @@
   <div>
     <div id="filters">
         <ul v-for="filter in filters" v-bind:key="filter.name">
-        <FilterComponent  :filterName="filter.name"/>
+        <FilterComponent  :filter="filter"/>
         </ul>
     </div>
   </div>
@@ -32,25 +32,38 @@ export default {
         this.filters=[
             {
                 name:"prixMin",
-
+                checked:false,
+                value:0,
             },
             {
                 name:"prixMax",
+                checked:false,
+                value:0,
             },
             {
                 name:"joursDavance",
+                checked:false,
+                value:0,
             },
             {
                 name:"longueur",
+                checked:false,
+                value:0,
             },
             {
                 name:"largeur",
+                checked:false,
+                value:0,
             },
             {
                 name:"hauteur",
+                checked:false,
+                value:0,
             },
             {
                 name:"dateFin",
+                checked:false,
+                value:0,
             },
         ];
     },
