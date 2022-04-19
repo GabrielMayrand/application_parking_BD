@@ -85,9 +85,9 @@ BEGIN
     END IF ;
     IF p_longueur is not NULL and p_largeur is not NULL and p_hauteur is not NULL THEN
         DELETE FROM tempStationnement WHERE id_stationnement NOT IN
-                                        (SELECT id_stationnement FROM stationnement WHERE longueur <= p_longueur
-                                                                                      AND largeur <= p_largeur
-                                                                                      AND hauteur <= p_hauteur);
+                                        (SELECT id_stationnement FROM stationnement WHERE longueur >= p_longueur
+                                                                                      AND largeur >= p_largeur
+                                                                                      AND hauteur >= p_hauteur);
     END IF ;
     IF p_joursAvance is not NULL THEN
         DELETE FROM tempStationnement WHERE id_stationnement NOT IN
