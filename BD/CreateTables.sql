@@ -331,6 +331,23 @@ END
 //
 DELIMITER ;
 
+CREATE PROCEDURE delete_plagehoraire_beforeDate (IN p_dateActuelle DATE)
+BEGIN
+    DECLARE cur_is_done BOOLEAN DEFAULT FALSE;
+    DECLARE cur_id_plage_horaire CHAR(20);
+    DECLARE cur CURSOR FOR SELECT id_plage_horaire FROM Plage_horaire WHERE date_depart < p_dateActuelle;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET cur_is_done = TRUE;
+    OPEN cur;
+    boucle: LOOP
+        FETCH cur INTO cur_id_plage_horaire;
+        IF cur_is_done THEN
+            LEAVE boucle;
+        END IF;
+        call delete_plageHoraire (cur_id_plage_horaire);
+    END LOOP boucle;
+    CLOSE cur;
+END
+
 
 
 set @id1 = md5('joe.blo@mail.com');

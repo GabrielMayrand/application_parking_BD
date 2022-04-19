@@ -351,6 +351,19 @@ def deletePlageHoraire(parkingId, plageHoraireId):
         return str(e)
 
 
+@ app.route('/removeUselessPlageHoraireBefore/<string:dateActuelle>', methods=['DELETE'])
+def removeUselessPlageHoraire(dateActuelle):
+    try:
+        if(request.method == 'DELETE'):
+            cur = mysql.connection.cursor()
+            cur.execute("call delete_plagehoraire_beforeDate(%s)",
+                        [dateActuelle])
+            mysql.connection.commit()
+            return 'Plage horaire supprimées'
+    except Exception as e:
+        return str(e)
+
+
 @ app.route('/user/<string:id>', methods=['GET', 'DELETE'])
 def utilisateur_id(id):
     try:
