@@ -77,7 +77,8 @@ CREATE PROCEDURE select_parkingList
     p_hauteur double, p_joursAvance integer, p_dateFin date)
 BEGIN
     DROP TABLE IF EXISTS tempStationnement;
-    CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement);
+    CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement
+        AS (SELECT * FROM stationnement);
     IF p_prixMin is not NULL and p_prixMax is not NULL THEN
         DELETE FROM tempStationnement WHERE id_stationnement NOT IN
                                         (SELECT id_stationnement FROM stationnement WHERE p_prixMin <= prix
@@ -97,29 +98,67 @@ BEGIN
         DELETE FROM tempStationnement WHERE id_stationnement NOT IN
                                         (SELECT id_stationnement FROM stationnement WHERE date_fin >= p_dateFin);
     END IF ;
-    SELECT * FROM tempStationnement;
+    SELECT * FROM (SELECT * FROM stationnement) AS S
+    RIGHT JOIN (SELECT * FROM Gerer G WHERE id_stationnement IN (SELECT id_stationnement FROM tempStationnement)) AS G
+    ON S.id_stationnement = G.id_stationnement;
 END
 //
 DELIMITER ;
 
 DELIMITER //
-CREATE PROCEDURE select_plageHoraire
+CREATE PROCEDURE select_plageHoraire_reservation
     (IN p_debut datetime, p_fin datetime, p_id_stationnement char(20))
 BEGIN
+    DROP TABLE IF EXISTS tempPlageHoraire;
+    CREATE TEMPORARY TABLE IF NOT EXISTS tempPlageHoraire AS
+        (SELECT * FROM (SELECT * FROM Plage_horaire) AS P
+            RIGHT JOIN (SELECT * FROM Louer WHERE id_plage_horaire IN
+                                          (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)) AS L
+            ON P.id_plage_horaire = L.id_plage_horaire);
     IF p_debut is not NULL and p_fin is not NULL THEN
-        SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
+        SELECT * FROM tempPlageHoraire WHERE id_plage_horaire IN
                                           (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)
                                       AND p_debut <= date_arrivee AND p_fin >= date_depart;
     ELSEIF p_debut is not NULL and p_fin is NULL THEN
-        SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
+        SELECT * FROM tempPlageHoraire WHERE id_plage_horaire IN
                                           (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)
                                       AND p_debut <= date_arrivee;
     ELSEIF p_debut is NULL and p_fin is not NULL THEN
-        SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
+        SELECT * FROM tempPlageHoraire WHERE id_plage_horaire IN
                                           (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)
                                       AND p_fin >= date_depart;
     ELSE
-        SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
+        SELECT * FROM tempPlageHoraire WHERE id_plage_horaire IN
+                                          (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement);
+    END IF ;
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE select_plageHoraire_inoccupable
+    (IN p_debut datetime, p_fin datetime, p_id_stationnement char(20))
+BEGIN
+    DROP TABLE IF EXISTS tempPlageHoraire;
+    CREATE TEMPORARY TABLE IF NOT EXISTS tempPlageHoraire AS
+        (SELECT * FROM (SELECT * FROM Plage_horaire) AS P
+            RIGHT JOIN (SELECT * FROM Retirer WHERE id_plage_horaire IN
+                                          (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)) AS R
+            ON P.id_plage_horaire = R.id_plage_horaire);
+    IF p_debut is not NULL and p_fin is not NULL THEN
+        SELECT * FROM tempPlageHoraire WHERE id_plage_horaire IN
+                                          (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)
+                                      AND p_debut <= date_arrivee AND p_fin >= date_depart;
+    ELSEIF p_debut is not NULL and p_fin is NULL THEN
+        SELECT * FROM tempPlageHoraire WHERE id_plage_horaire IN
+                                          (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)
+                                      AND p_debut <= date_arrivee;
+    ELSEIF p_debut is NULL and p_fin is not NULL THEN
+        SELECT * FROM tempPlageHoraire WHERE id_plage_horaire IN
+                                          (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)
+                                      AND p_fin >= date_depart;
+    ELSE
+        SELECT * FROM tempPlageHoraire WHERE id_plage_horaire IN
                                           (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement);
     END IF ;
 END

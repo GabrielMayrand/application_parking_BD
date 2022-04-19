@@ -13,7 +13,9 @@ SELECT courriel, nom, prenom, token, id_utilisateur FROM utilisateur WHERE token
 call select_parkingList('$prixMin', '$prixMax', '$longueur', '$largeur', '$hauteur', '$joursDavance', '$dateFin');
 
 #get parkingListId
-SELECT * FROM stationnement WHERE id_stationnement = '$id_stationnement';
+SELECT * FROM (SELECT * FROM stationnement WHERE id_stationnement = '$id_stationnement') AS S
+RIGHT JOIN (SELECT * FROM Gerer WHERE id_stationnement = '$id_stationnement') AS G
+ON S.id_stationnement = G.id_stationnement;
 
 #post parking
 call insert_parking('$id_stationnement', '$id_utilisateur', '$prix', '$longueur', '$largeur', '$hauteur', '$emplacment', '$joursDavance', '$dateFin');
@@ -26,8 +28,11 @@ UPDATE stationnement SET prix = '$prix', longueur = '$longueur', largeur = '$lar
 #delete parking
 call delete_stationnement('$id_stationnement');
 
-#get plageHoraire by stationnement_id
-call select_plageHoraire('$date_debut', '$date_fin', '$id_stationnement');
+#get plageHoraire by stationnement_id for reservation
+call select_plageHoraire_reservation('$date_debut', '$date_fin', '$id_stationnement');
+
+#get plageHoraire by stationnement_id for inoccupable
+call select_plageHoraire_inoccupable('$date_debut', '$date_fin', '$id_stationnement');
 
 #post Reservation plageHoraire by stationnement_id
 call insert_plageHoraire_reserver('$date_debut', '$date_fin', '$id_stationnement', '$id_plage_horaire', '$id_utilisateur');

@@ -26,9 +26,14 @@ export default {
         await this.api.getParkingList();
         this.parkingList = this.api.response;
       },
+      async getFilteredParkingList(filtersString) {
+        await this.api.getFilteredParkingList(filtersString);
+        this.parkingList = this.api.response;
+      },
     },
     created() {
-        this.getParkingList();
+      this.$root.$refs.Home = this;
+      this.getParkingList();
     },
 };
 </script>

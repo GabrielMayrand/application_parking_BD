@@ -3,7 +3,7 @@
         <div id="infoCard" class="hero is-link">
             <div id="parkingCard">
                 <p class="title">Stationnement : </p>
-                <p class="subtitle">{{parking.address}}</p>
+                <p class="subtitle">{{parking.emplacement}}</p>
             </div>
             <router-link  :to="{path:`/user/${owner.id}`}">
             <div class="card notification is-primary is-light" id="ownerCard">

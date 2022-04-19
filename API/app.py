@@ -201,6 +201,7 @@ def parkingList():
                 d['emplacement'] = row[5]
                 d['jours_d_avance'] = row[6]
                 d['date_fin'] = row[7]
+                d['id_utilisateur'] = row[8]
                 objParking.append(d)
             return jsonify(objParking)
     except Exception as e:
@@ -213,7 +214,7 @@ def parking(id):
         if(request.method == 'GET'):
             cur = mysql.connection.cursor()
             cur.execute(
-                "SELECT * FROM stationnement WHERE id_stationnement=%s", [id])
+                "SELECT * FROM (SELECT * FROM stationnement WHERE id_stationnement = %s) AS S RIGHT JOIN (SELECT * FROM Gerer WHERE id_stationnement = %s) AS G ON S.id_stationnement = G.id_stationnement", (id, id))
             parking = cur.fetchall()
             objParking = []
             for row in parking:
@@ -226,6 +227,7 @@ def parking(id):
                 d['emplacement'] = row[5]
                 d['jours_d_avance'] = row[6]
                 d['date_fin'] = row[7]
+                d['id_utilisateur'] = row[8]
                 objParking.append(d)
             return jsonify(objParking)
         elif(request.method == 'POST'):
@@ -252,8 +254,8 @@ def parking(id):
         return str(e)
 
 
-@ app.route('/parking/<int:parkingId>/plageHoraires', methods=['GET'])
-def plageHoraires(parkingId):
+@ app.route('/parking/<int:parkingId>/plageHoraires/reservation', methods=['GET'])
+def plageHorairesReservation(parkingId):
     try:
         if(request.method == 'GET'):
             debut = (request.args.get('debut'))
@@ -263,7 +265,7 @@ def plageHoraires(parkingId):
             if(fin is not None):
                 fin.replace("%20", " ")
             cur = mysql.connection.cursor()
-            cur.execute("call select_plageHoraire(%s, %s, %s)",
+            cur.execute("call select_plageHoraire_reservation(%s, %s, %s)",
                         (debut, fin, parkingId))
             plageHoraires = cur.fetchall()
             objPlageHoraires = []
@@ -272,6 +274,34 @@ def plageHoraires(parkingId):
                 d['id_plage_horaires'] = row[0]
                 d['date_arrivee'] = row[1]
                 d['date_depart'] = row[2]
+                d['id_utilisateur'] = row[3]
+                objPlageHoraires.append(d)
+            return jsonify(objPlageHoraires)
+    except Exception as e:
+        return str(e)
+
+
+@ app.route('/parking/<int:parkingId>/plageHoraires/inoccupable', methods=['GET'])
+def plageHorairesInoccupable(parkingId):
+    try:
+        if(request.method == 'GET'):
+            debut = (request.args.get('debut'))
+            if(debut is not None):
+                debut.replace("%20", " ")
+            fin = (request.args.get('fin'))
+            if(fin is not None):
+                fin.replace("%20", " ")
+            cur = mysql.connection.cursor()
+            cur.execute("call select_plageHoraire_inoccupable(%s, %s, %s)",
+                        (debut, fin, parkingId))
+            plageHoraires = cur.fetchall()
+            objPlageHoraires = []
+            for row in plageHoraires:
+                d = collections.OrderedDict()
+                d['id_plage_horaires'] = row[0]
+                d['date_arrivee'] = row[1]
+                d['date_depart'] = row[2]
+                d['id_utilisateur'] = row[3]
                 objPlageHoraires.append(d)
             return jsonify(objPlageHoraires)
     except Exception as e:

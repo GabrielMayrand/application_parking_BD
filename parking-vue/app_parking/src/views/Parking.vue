@@ -1,13 +1,14 @@
 /<template>
     <div>
-        <ParkingInfo :parking="this.parking"/>
-        <ParkingHoraire :parking="this.parking" :plagesHoraire="this.plagesHoraire"/>
+        <ParkingInfo :parking="this.parking[0]"/>
+        <ParkingHoraire :parking="this.parking[0]" :plagesHoraire="this.plagesHoraire"/>
     </div>
 </template>
 
 <script>
 import ParkingInfo from "../components/ParkingComponents/ParkingInfo.vue";
 import ParkingHoraire from "../components/ParkingComponents/ParkingHoraire.vue";
+import {API} from "../utility/api.js";
 export default {
     name : "Parking",
     components: {
@@ -16,20 +17,17 @@ export default {
     },
     data(){
         return {
-            parking: Object,
+            pageId : this.$route.params.id,
+            api : new API(),
+            parking: Array,
             plagesHoraire: Array,
         }
     },
     methods: {
-        getParking() {
-           this.parking = {
-                id: 1,
-                advanceDays: 10,
-                finalDate: "2019-12-12",
-                dimensions:[10,30,40],
-                address: "155 rue de la gare, Québec, QC, Canada",
-                landlordId: 45,
-            }
+        async getParking() {
+            await this.api.getParkingById(this.pageId);
+            this.parking = this.api.response;
+            console.log(this.parking[0]);
         },
         getPlagesHoraire() {        
             this.plagesHoraire = [
