@@ -2,14 +2,15 @@
     <div>
         <div id="infoCard" class="hero is-link">
             <div id="parkingCard">
-                <p class="title">Stationnement : </p>
+                <p class="title">Parking : </p>
                 <p class="subtitle">{{parking.emplacement}}</p>
+                <p class="subtitle">Price: {{parking.prix}}$</p>
             </div>
             <router-link  :to="{path:`/user/${owner.id}`}">
             <div class="card notification is-primary is-light" id="ownerCard">
                 <h5><strong>Propriétaire: </strong>{{owner.prenom}} {{owner.nom}}</h5> 
                 <p> <strong>Cote: </strong>{{owner.cote}}</p>
-                <p> <strong>Courriel: </strong>{{owner.email}}</p>
+                <p> <strong>Courriel: </strong>{{owner.courriel}}</p>
             </div>
             </router-link>
         </div>
@@ -39,28 +40,16 @@
 </style>
 
 <script>
+import { API } from "../../utility/api.js";
 export default {
     data() {
         return {
-            owner: Object,
+            api : new API(),
         }
     },
     props: {
         parking: Object,
-    },
-    methods: {
-        getOwner() {
-           this.owner = {
-                id: 1,
-                prenom: "Jean",
-                nom: "Dupont",
-                cote: 5,
-                email: "jeanDupont@mail.com",
-            }
-        },
-    },
-    mounted() {
-        this.getOwner();
+        owner: Object,
     },
 }
 </script>

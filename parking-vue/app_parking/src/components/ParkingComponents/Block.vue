@@ -1,11 +1,16 @@
 <template>
-    <div class="card">
-        <div>
+    <div>
+        <button class="button">
+            <div>
             {{block.startTime}}
+        </div>
+        <div>
+            -
         </div>
         <div>
             {{block.endTime}}
         </div>
+        </button>
     </div>
 </template>
 

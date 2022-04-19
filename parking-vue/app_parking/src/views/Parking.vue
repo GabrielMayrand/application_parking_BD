@@ -1,78 +1,58 @@
 /<template>
     <div>
-        <ParkingInfo :parking="this.parking[0]"/>
-        <ParkingHoraire :parking="this.parking[0]" :plagesHoraire="this.plagesHoraire"/>
+        <ParkingInfo v-if="!isFetching" :parking="parking[0]" :owner="owner[0]"/>
+        <Agenda v-if="!isFetching" :plagesHorairesReservation="plagesHorairesReservation" :plagesHorairesInoccupable="plagesHorairesInoccupable" :finalDate="parking[0].date_fin"/>
+        <!-- <ParkingHoraire :parking="this.parking[0]" :plagesHoraire="this.plagesHoraire"/> -->
     </div>
 </template>
 
 <script>
 import ParkingInfo from "../components/ParkingComponents/ParkingInfo.vue";
-import ParkingHoraire from "../components/ParkingComponents/ParkingHoraire.vue";
+import Agenda from "../components/AgendaComponents/Agenda.vue";
+// import ParkingHoraire from "../components/ParkingComponents/ParkingHoraire.vue";
 import {API} from "../utility/api.js";
 export default {
     name : "Parking",
-    components: {
-        ParkingInfo,
-        ParkingHoraire,
-    },
     data(){
         return {
             pageId : this.$route.params.id,
             api : new API(),
-            parking: Array,
-            plagesHoraire: Array,
+            parking: [],
+            owner: [],
+            plagesHorairesReservation: [],
+            plagesHorairesInoccupable: [],
+            isFetching: true,
         }
+    },
+    components: {
+        ParkingInfo,
+        Agenda,
+        // ParkingHoraire,
     },
     methods: {
         async getParking() {
             await this.api.getParkingById(this.pageId);
             this.parking = this.api.response;
-            console.log(this.parking[0]);
+            this.getOwner();
         },
-        getPlagesHoraire() {        
-            this.plagesHoraire = [
-                {
-                    id: 0,
-                    startTime: "10:00",
-                    endTime: "10:15",
-                    price: 10,
-                    date: "2022-03-20",
-                },
-                {
-                    id: 1,
-                    startTime: "10:00",
-                    endTime: "10:15",
-                    price: 10,
-                    date: "2022-03-25",
-                },
-                {
-                    id: 2,
-                    startTime: "13:00",
-                    endTime: "13:15",
-                    price: 10,
-                    date: "2022-03-25",
-                },
-                {
-                    id: 3,
-                    startTime: "14:00",
-                    endTime: "14:15",
-                    price: 10,
-                    date: "2022-03-25",
-                },
-                {
-                    id: 4,
-                    startTime: "14:00",
-                    endTime: "14:15",
-                    price: 10,
-                    date: "2022-03-30",
-                },
-            ]
+        async getOwner() {
+            await this.api.getUserById(this.parking[0].id_utilisateur);
+            this.owner = this.api.response;
+            this.getPlagesHorairesReservation();
+        },
+        async getPlagesHorairesReservation() {
+            await this.api.getPlagesHorairesReservation(this.pageId);
+            this.plagesHorairesReservation = this.api.response;
+            this.getPlagesHorairesInoccupable();
+        },
+        async getPlagesHorairesInoccupable() {
+            await this.api.getPlagesHorairesInoccupable(this.pageId);
+            this.plagesHorairesInoccupable = this.api.response;
+            this.isFetching = false;
         },
     },
-    created() {
+    async created() {
         this.getParking();
-        this.getPlagesHoraire();
-
     },
-};
+}
 </script>

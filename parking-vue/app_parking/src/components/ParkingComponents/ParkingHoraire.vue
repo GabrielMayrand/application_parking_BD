@@ -1,7 +1,7 @@
 <template>
     <div>
-        <Header :todayDate="this.todayDate" :finalWeekDate="this.finalWeekDate"/>
-        <Week :todayDate="this.todayDate" :finalReservationDate="this.finalReservationDate" :finalWeekDate="this.finalWeekDate" :plagesWeek="this.plagesWeek"/>
+        <Header :todayDate="todayDate" :finalWeekDate="finalWeekDate" :finalReservationDate="finalReservationDate"/>
+        <Week :todayDate="todayDate" :finalReservationDate="finalReservationDate" :finalWeekDate="finalWeekDate" :plagesWeek="plagesWeek"/>
     </div>
 </template>
 
@@ -27,6 +27,14 @@ export default {
         parking: Object,
     },
     methods :{
+        nextWeek(){
+            this.todayDate = new Date(this.todayDate.setDate(this.todayDate.getDate() + 7));
+            this.finalWeekDate = new Date(this.finalWeekDate.setDate(this.finalWeekDate.getDate() + 7));
+        },
+        previousWeek(){
+            this.todayDate = new Date(this.todayDate.setDate(this.todayDate.getDate() - 7));
+            this.finalWeekDate = new Date(this.finalWeekDate.setDate(this.finalWeekDate.getDate() - 7));
+        },
         getWeekBlocks(){
             this.plagesHoraire.every(plage => {
                 let date = new Date(plage.date.split("-")[0], plage.date.split("-")[1] - 1, plage.date.split("-")[2]);
@@ -44,6 +52,7 @@ export default {
         }
     },
     created() {
+        this.$root.$refs.ParkingHoraire = this;
         this.finalReservationDate = new Date(this.finalReservationDate.setDate(this.todayDate.getDate() + this.parking.advanceDays));
         this.finalWeekDate = new Date(this.finalWeekDate.setDate(this.todayDate.getDate() + 6));
         this.getWeekBlocks();

@@ -49,10 +49,11 @@
     }
 </style>
 <script>
-
+import {API} from "../utility/api.js"; 
 export default {
   data() {
     return {
+        api : new API(),
         validUserName: true,
         validEmail: true,
         validFirstName: true,
@@ -67,10 +68,9 @@ export default {
   },
 
   methods: {
-    submitForm(){
+    async submitForm(){
       if(this.validateEmail() && this.validateUserName() && this.validateFirstName() && this.validateLastName() && this.validatePassword()){
-        console.log("form submitted");
-        this.$router.push({ name: 'Home' });
+        await this.api.postSignUp(this.firstname, this.lastname, this.email, this.password);
       }
 
     },
