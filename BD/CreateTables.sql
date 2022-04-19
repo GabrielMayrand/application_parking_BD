@@ -47,22 +47,18 @@ CREATE TABLE Possede (id_plage_horaire char(20) NOT NULL UNIQUE REFERENCES Plage
 
 
 
-CREATE INDEX idx_courriel_utilisateur ON Utilisateur(courriel);
-CREATE INDEX idx_token_utilisateur ON Utilisateur(token);
+CREATE INDEX idx_courriel_utilisateur ON Utilisateur(courriel) USING HASH;
+CREATE INDEX idx_token_utilisateur ON Utilisateur(token) USING HASH;
 
-CREATE INDEX idx_cote_locateur ON Locateur(cote);
+CREATE INDEX idx_cote_locateur ON Locateur(cote) USING HASH;
 
-CREATE INDEX idx_dimension_stationnement ON Stationnement (longueur, largeur, hauteur);
-CREATE INDEX idx_emplacement_stationnement ON Stationnement (emplacement);
-CREATE INDEX idx_dateFin_stationnement ON Stationnement (date_fin);
-CREATE INDEX idx_prix_stationnement ON Stationnement (prix);
+CREATE INDEX idx_dimension_stationnement ON Stationnement (longueur, largeur, hauteur) USING BTREE;
+CREATE INDEX idx_emplacement_stationnement ON Stationnement (jours_d_avance) USING BTREE;
+CREATE INDEX idx_dateFin_stationnement ON Stationnement (date_fin) USING BTREE;
+CREATE INDEX idx_prix_stationnement ON Stationnement (prix) USING BTREE;
 
-CREATE INDEX idx_dimension_vehicule ON Vehicule (longueur, largeur, hauteur);
-CREATE INDEX idx_modele_vehicule ON Vehicule (modele);
-CREATE INDEX idx_couleur_vehicule ON Vehicule (couleur);
-
-CREATE INDEX idx_plageHoraire_dateDebut ON Plage_horaire (date_arrivee);
-CREATE INDEX idx_plageHoraire_dateFin ON Plage_horaire (date_depart);
+CREATE INDEX idx_plageHoraire_dateDebut ON Plage_horaire (date_arrivee) USING BTREE;
+CREATE INDEX idx_plageHoraire_dateFin ON Plage_horaire (date_depart) USING BTREE;
 
 
 
@@ -318,12 +314,12 @@ INSERT INTO Stationnement (id_stationnement, prix, longueur, largeur, hauteur, e
 INSERT INTO Gerer (id_utilisateur, id_stationnement) VALUES (@id1, 1), (@id2, 2), (@id3, 3);
 
 INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart)
-    VALUES (1, '2022-2-20 9:00:00', '2022-2-20 10:00:00'),
-           (2, '2022-2-22 9:00:00', '2022-2-23 10:15:00'),
-           (3, '2022-2-28 9:00:00', '2022-3-1 10:00:00'),
-           (4, '2022-3-14 9:00:00', '2022-3-14 10:00:00'),
-           (5, '2022-3-15 15:00:00', '2022-3-15 20:45:00'),
-           (6, '2022-3-16 12:00:00', '2022-3-17 17:30:00');
+    VALUES (1, '2022-2-20 9:45:00', '2022-2-20 10:00:00'),
+           (2, '2022-2-22 10:00:00', '2022-2-22 10:15:00'),
+           (3, '2022-2-28 9:00:00', '2022-2-28 9:15:00'),
+           (4, '2022-3-14 10:45:00', '2022-3-14 11:00:00'),
+           (5, '2022-3-15 15:30:00', '2022-3-15 15:45:00'),
+           (6, '2022-3-16 23:00:00', '2022-3-16 23:15:00');
 
 INSERT INTO Reservation (id_plage_horaire) VALUES (2), (3), (4), (5), (6);
 
