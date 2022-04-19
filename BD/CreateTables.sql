@@ -359,10 +359,10 @@ set @id3 = md5('test@mail.com');
 set @id4 = md5('monsieurNet@mail.com');
 
 INSERT INTO Utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe)
-    VALUES  (@id1, sha1(@id1), 'joe.blo@mail.com', 'Blo', 'Joe', ''),
-            (@id2, sha1(@id2), 'john.cena@mail.com', 'Cena', 'John', ''),
-            (@id3, sha1(@id3), 'test@mail.com', 'Test', 'Monsieur', ''),
-            (@id4, sha1(@id4), 'monsieurNet@mail.com', 'Net', 'Monsieur', '');
+    VALUES  (@id1, sha1(@id1), 'joe.blo@mail.com', 'Blo', 'Joe', 'gwsko436347gns57olg'),
+            (@id2, sha1(@id2), 'john.cena@mail.com', 'Cena', 'John', 'gwsko436347gns57olg'),
+            (@id3, sha1(@id3), 'test@mail.com', 'Test', 'Monsieur', 'gwsko436347gns57olg'),
+            (@id4, sha1(@id4), 'monsieurNet@mail.com', 'Net', 'Monsieur', 'gwsko436347gns57olg');
 
 INSERT INTO Locateur (id_utilisateur, cote) VALUES (@id1, NULL), (@id2, NULL), (@id3, NULL);
 
@@ -425,7 +425,7 @@ DELIMITER //
 CREATE PROCEDURE create_data_utilisateur(IN donnees INT, p_courriel char(50), p_id_utilisateur char(32))
 BEGIN
     INSERT INTO Utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe)
-        VALUE (p_id_utilisateur, sha1(p_courriel), p_courriel, 'Monsieur', CONCAT('Test', donnees), 'password');
+        VALUE (p_id_utilisateur, sha1(p_courriel), p_courriel, 'Monsieur', CONCAT('Test', donnees), 'gwsko436347gns57olg');
     IF (donnees % 2) = 0 THEN
         INSERT INTO Locateur (id_utilisateur, cote) VALUES (p_id_utilisateur, NULL);
     ELSE
