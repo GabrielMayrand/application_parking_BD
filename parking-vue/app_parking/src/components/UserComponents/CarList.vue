@@ -1,7 +1,7 @@
 <template>
   <div>
       <div id="CarList">
-          <ul id="carCard" class="card is-primary" v-for="carCard in CarList" v-bind:key="carCard.id">
+          <ul class="card is-primary carCard" v-for="carCard in CarList" v-bind:key="carCard.id">
             <CarCard id="CarCard" :carCard="carCard"/>
           </ul>
       </div>
@@ -28,7 +28,7 @@ export default {
         flex-direction: row;
         flex-wrap: wrap;
     }
-    #carCard{
+    .carCard{
         flex-wrap: wrap;
         padding: 10px;
         margin: 10px;

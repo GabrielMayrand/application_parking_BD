@@ -7,11 +7,20 @@
 
 <script>
 import Navigation from './components/Navigation.vue'
+import Cookies from "js-cookie";
 
 export default {
   name: 'App',
   components: {
     "navigation": Navigation
+  },
+  created () {
+    let tokenCookie = Cookies.get("token");
+    if (tokenCookie != undefined) {
+      this.$globalThis = tokenCookie;
+    } else {
+      this.$globalThis = "";
+    }
   }
 }
 </script>

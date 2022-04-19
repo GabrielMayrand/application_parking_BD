@@ -1,16 +1,16 @@
 <template>
     <div id="carCard" class="card is-link">
         <div class="title">
-            {{this.carCard.Model}}
+            {{this.carCard.modele}}
         </div>
         <div class="subtitle">
-            {{this.carCard.Couleur}}
+            {{this.carCard.couleur}}
         </div>
         <div class="input">
             Dimensions: 
-            {{this.carCard.Dimensions[0]}}x
-            {{this.carCard.Dimensions[1]}}x
-            {{this.carCard.Dimensions[2]}}
+            {{this.carCard.longueur}}x
+            {{this.carCard.largeur}}x
+            {{this.carCard.hauteur}}
         </div>
     </div>
 </template>

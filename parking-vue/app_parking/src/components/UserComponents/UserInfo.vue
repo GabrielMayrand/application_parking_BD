@@ -1,43 +1,20 @@
 <template>
     <div id="userWrap" class="hero is-primary">
         <div id="userInfoCard" >
-            <div class="title">{{this.user.prenom}} {{this.user.nom}}</div>
-            <div class="subtitle">{{this.user.courriel}}</div>
+            <div class="title">{{user.prenom}} {{user.nom}}</div>
+            <div class="subtitle">{{user.courriel}}</div>
         </div>
-        <div id="coteCard" v-if="this.user.cote != undefined">
-            <div class="subtitle">Cote: {{this.user.cote}}</div>
+        <div id="coteCard" v-if="user.cote != undefined">
+            <div class="subtitle">Cote: {{user.cote}}</div>
         </div>
     </div>
 </template>
 
 <script>
-import axios from "axios";
 
 export default {
-    data() {
-        return {
-            user: Object,
-        };
-    },
-    methods: {
-        getUser() {
-            axios.get('/user/' + this.$route.params.id)
-                .then(response => {
-                    this.user = response.data;
-                })
-                .catch(error => {
-                    console.log(error);
-                });
-            this.user = {
-                id: 1,
-                prenom: "Jean",
-                nom: "Dupont",
-                courriel: "jean@email.com",
-            }
-        }
-    },
-    created() {
-        this.getUser();
+    props:{
+        user: Object,
     },
 };
 </script>

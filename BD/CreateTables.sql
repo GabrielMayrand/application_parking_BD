@@ -16,34 +16,34 @@ CREATE TABLE Locataire (id_utilisateur char(32) PRIMARY KEY,
 CREATE TABLE Evalue (id_utilisateur_locateur char(32) NOT NULL REFERENCES Locateur(id_utilisateur),
     id_utilisateur_locataire char(32) REFERENCES Locataire(id_utilisateur), cote integer);
 
-CREATE TABLE Vehicule (plaque char(6) PRIMARY KEY, modele char(50), couleur char(20),
+CREATE TABLE Vehicule (plaque char(6) PRIMARY KEY, modele char(50), couleur char(32),
     longueur double, largeur double, hauteur double);
 
 CREATE TABLE Appartient (id_utilisateur char(32) NOT NULL REFERENCES Utilisateur(id_utilisateur),
     plaque char(6) NOT NULL UNIQUE REFERENCES Vehicule(plaque));
 
-CREATE TABLE Stationnement (id_stationnement char(20) PRIMARY KEY, prix double, longueur double, largeur double,
+CREATE TABLE Stationnement (id_stationnement char(32) PRIMARY KEY, prix double, longueur double, largeur double,
     hauteur double, emplacement char(50), jours_d_avance integer, date_fin date);
 
 CREATE TABLE Gerer (id_utilisateur char(32) NOT NULL REFERENCES Utilisateur(id_utilisateur),
-    id_stationnement char(20) NOT NULL UNIQUE REFERENCES Stationnement(id_stationnement));
+    id_stationnement char(32) NOT NULL UNIQUE REFERENCES Stationnement(id_stationnement));
 
-CREATE TABLE Plage_horaire (id_plage_horaire char(20) PRIMARY KEY, date_arrivee datetime(0), date_depart datetime(0));
+CREATE TABLE Plage_horaire (id_plage_horaire char(32) PRIMARY KEY, date_arrivee datetime(0), date_depart datetime(0));
 
-CREATE TABLE Reservation (id_plage_horaire char(20) PRIMARY KEY,
+CREATE TABLE Reservation (id_plage_horaire char(32) PRIMARY KEY,
     FOREIGN KEY(id_plage_horaire) REFERENCES Plage_horaire(id_plage_horaire));
 
-CREATE TABLE Inoccupable (id_plage_horaire char(20) PRIMARY KEY,
+CREATE TABLE Inoccupable (id_plage_horaire char(32) PRIMARY KEY,
     FOREIGN KEY(id_plage_horaire) REFERENCES Plage_horaire(id_plage_horaire));
 
 CREATE TABLE Louer (id_utilisateur char(32) NOT NULL REFERENCES Utilisateur(id_utilisateur),
-    id_plage_horaire char(20) UNIQUE REFERENCES Plage_horaire(id_plage_horaire));
+    id_plage_horaire char(32) UNIQUE REFERENCES Plage_horaire(id_plage_horaire));
 
 CREATE TABLE Retirer (id_utilisateur char(32) NOT NULL REFERENCES Utilisateur(id_utilisateur),
-    id_plage_horaire char(20) UNIQUE REFERENCES Plage_horaire(id_plage_horaire));
+    id_plage_horaire char(32) UNIQUE REFERENCES Plage_horaire(id_plage_horaire));
 
-CREATE TABLE Possede (id_plage_horaire char(20) NOT NULL UNIQUE REFERENCES Plage_horaire(id_plage_horaire),
-    id_stationnement char(20) REFERENCES Stationnement(id_stationnement));
+CREATE TABLE Possede (id_plage_horaire char(32) NOT NULL UNIQUE REFERENCES Plage_horaire(id_plage_horaire),
+    id_stationnement char(32) REFERENCES Stationnement(id_stationnement));
 
 
 
@@ -107,7 +107,7 @@ DELIMITER ;
 
 DELIMITER //
 CREATE PROCEDURE select_plageHoraire_reservation
-    (IN p_debut datetime, p_fin datetime, p_id_stationnement char(20))
+    (IN p_debut datetime, p_fin datetime, p_id_stationnement char(32))
 BEGIN
     DROP TABLE IF EXISTS tempPlageHoraire;
     CREATE TEMPORARY TABLE IF NOT EXISTS tempPlageHoraire AS (SELECT * FROM Plage_horaire);
@@ -145,7 +145,7 @@ DELIMITER ;
 
 DELIMITER //
 CREATE PROCEDURE select_plageHoraire_inoccupable
-    (IN p_debut datetime, p_fin datetime, p_id_stationnement char(20))
+    (IN p_debut datetime, p_fin datetime, p_id_stationnement char(32))
 BEGIN
     DROP TABLE IF EXISTS tempPlageHoraire;
     CREATE TEMPORARY TABLE IF NOT EXISTS tempPlageHoraire AS (SELECT * FROM Plage_horaire);
@@ -183,7 +183,7 @@ DELIMITER ;
 
 DELIMITER //
 CREATE PROCEDURE insert_plageHoraire_reserver
-    (IN p_debut datetime, p_fin datetime, p_id_stationnement char(20), p_id_plage_horaire char(20), p_id_utilisateur char(32))
+    (IN p_debut datetime, p_fin datetime, p_id_stationnement char(32), p_id_plage_horaire char(32), p_id_utilisateur char(32))
 BEGIN
     INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart)
         VALUE (p_id_plage_horaire, p_debut, p_fin);
@@ -199,7 +199,7 @@ DELIMITER ;
 
 DELIMITER //
 CREATE PROCEDURE insert_plageHoraire_inoccupable
-    (IN p_debut datetime, p_fin datetime, p_id_stationnement char(20), p_id_plage_horaire char(20), p_id_utilisateur char(32))
+    (IN p_debut datetime, p_fin datetime, p_id_stationnement char(32), p_id_plage_horaire char(32), p_id_utilisateur char(32))
 BEGIN
     INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart)
         VALUE (p_id_plage_horaire, p_debut, p_fin);
@@ -215,8 +215,8 @@ DELIMITER ;
 
 DELIMITER //
 CREATE PROCEDURE insert_parking
-    (IN p_id_stationnement char(20), p_id_utilisateur char(32), p_prix double, p_longueur double, p_largeur double,
-    p_hauteur double, p_emplacement char(20), p_joursDavance integer, p_dateFin date)
+    (IN p_id_stationnement char(32), p_id_utilisateur char(32), p_prix double, p_longueur double, p_largeur double,
+    p_hauteur double, p_emplacement char(32), p_joursDavance integer, p_dateFin date)
 BEGIN
     INSERT INTO stationnement (id_stationnement, prix, longueur, largeur, hauteur, emplacement, jours_d_avance, date_fin)
         VALUE (p_id_stationnement, p_prix, p_longueur, p_largeur, p_hauteur, p_emplacement, p_joursDavance, p_dateFin);
@@ -228,7 +228,7 @@ DELIMITER ;
 
 DELIMITER //
 CREATE PROCEDURE insert_vehicule
-    (IN p_plaque char(6), p_modele char(20), p_couleur char(20), p_longueur double,
+    (IN p_plaque char(6), p_modele char(32), p_couleur char(32), p_longueur double,
     p_largeur double, p_hauteur double, p_id_utilisateur char(32))
 BEGIN
     INSERT INTO Vehicule (plaque, modele, couleur, longueur, largeur, hauteur)
@@ -244,7 +244,7 @@ CREATE PROCEDURE delete_utilisateur
     (IN p_id_utilisateur char(32), p_token char(40))
 BEGIN
     DECLARE cur_is_done BOOLEAN DEFAULT FALSE;
-    DECLARE cur_id_parking CHAR(20);
+    DECLARE cur_id_parking CHAR(32);
     DECLARE cur_id_voiture CHAR(6);
     DECLARE cur_parking CURSOR FOR SELECT id_stationnement FROM Gerer WHERE id_utilisateur = p_id_utilisateur;
     DECLARE cur_voiture CURSOR FOR SELECT plaque FROM Appartient WHERE id_utilisateur = p_id_utilisateur;
@@ -286,7 +286,7 @@ DELIMITER ;
 
 DELIMITER //
 CREATE PROCEDURE delete_plageHoraire
-    (IN p_id_plage_horaire char(20))
+    (IN p_id_plage_horaire char(32))
 BEGIN
     DELETE FROM Inoccupable WHERE id_plage_horaire = p_id_plage_horaire;
     DELETE FROM Reservation WHERE id_plage_horaire = p_id_plage_horaire;
@@ -300,10 +300,10 @@ DELIMITER ;
 
 DELIMITER //
 CREATE PROCEDURE delete_stationnement
-    (IN p_id_stationnement char(20))
+    (IN p_id_stationnement char(32))
 BEGIN
     DECLARE cur_is_done BOOLEAN DEFAULT FALSE;
-    DECLARE cur_id_plage_horaire CHAR(20);
+    DECLARE cur_id_plage_horaire CHAR(32);
     DECLARE cur CURSOR FOR SELECT id_plage_horaire FROM Possede WHERE id_stationnement = p_id_stationnement;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET cur_is_done = TRUE;
     OPEN cur;
@@ -335,7 +335,7 @@ DELIMITER //
 CREATE PROCEDURE delete_plagehoraire_beforeDate (IN p_dateActuelle DATE)
 BEGIN
     DECLARE cur_is_done BOOLEAN DEFAULT FALSE;
-    DECLARE cur_id_plage_horaire CHAR(20);
+    DECLARE cur_id_plage_horaire CHAR(32);
     DECLARE cur CURSOR FOR SELECT id_plage_horaire FROM Plage_horaire WHERE date_depart < p_dateActuelle;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET cur_is_done = TRUE;
     OPEN cur;

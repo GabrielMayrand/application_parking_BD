@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="65f22a2e-b07a-401c-ab29-80e6685598a8" name="Changes" comment="" />
     <list default="true" id="65f22a2e-b07a-401c-ab29-80e6685598a8" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3/storage_v2/_src_/schema/application_parking.yQ96gQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3/storage_v2/_src_/schema/application_parking.yQ96gQ.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BD/CreateTables.sql" beforeDir="false" afterPath="$PROJECT_DIR$/BD/CreateTables.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/App.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/AgendaComponents/Agenda.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/AgendaComponents/Agenda.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/UserComponents/CarCard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/UserComponents/CarCard.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/UserComponents/CarList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/UserComponents/CarList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/UserComponents/CarTab.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/UserComponents/CarTab.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/UserComponents/ParkingTab.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/UserComponents/ParkingTab.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/UserComponents/UserInfo.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/UserComponents/UserInfo.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/utility/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/utility/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/views/Login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/views/Login.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/views/Parking.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/views/Parking.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/views/SignUp.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/views/SignUp.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/views/User.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/views/User.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,5 +65,16 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="OracleBreakpointType">
+          <url>file://$PROJECT_DIR$/BD/CreateTables.sql</url>
+          <line>139</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

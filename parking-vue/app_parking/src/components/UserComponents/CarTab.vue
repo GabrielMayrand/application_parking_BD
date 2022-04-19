@@ -1,32 +1,38 @@
  <template>
   <div>
-      <div id="createCarForm">
-          <button class="button is-primary">Create Car</button>
-          <div class="form">
-                <input class="input" type="input" placeholder="License plate"/>           
-                <input class="input" type="input" placeholder="Model"/>
-                <input class="input" type="input" placeholder="Color"/>
-          </div>
-          <div id="dimensionsForm" class="form">
-                <input class="input" type="input" placeholder="height"/>
-                <input class="input" type="input" placeholder="width"/>
-                <input class="input" type="input" placeholder="length"/>
-          </div>
-
-      </div>
-        
-        
-        <CarList :CarList="carList"/>
+        <div id="createCarForm">
+            <button class="button is-primary" @click="postUserCar()">Create Car</button>
+            
+            <div class="form">
+                    <input class="input" type="input" placeholder="License plate: AAAAAA" id="plaque"/>           
+                    <input class="input" type="input" placeholder="Model" id="model"/>
+                    <input class="input" type="input" placeholder="Color" id="color"/>
+            </div>
+            <div id="dimensionsForm" class="form">
+                    <input class="input" type="input" placeholder="height" id="height"/>
+                    <input class="input" type="input" placeholder="width" id="width"/>
+                    <input class="input" type="input" placeholder="length" id="length"/>
+            </div>
+        </div>
+        <div class="tag is-danger" v-if="infoWrong">
+            Some information is missing or is incorrect.
+        </div>
+        <CarList :CarList="carList" v-if="!isFetching"/>
   </div>
 </template>
 
 <script>
 import CarList from "./CarList.vue"
+import {API} from "../../utility/api.js";
 
 export default {
     data(){
         return {
-            carList: Array
+            infoWrong: false,
+            carList: [],
+            api: new API(),
+            isFetching: true,
+            pageId : this.$route.params.id,
         }
     },
 
@@ -35,27 +41,23 @@ export default {
     },
 
     methods :{
-      getCarList() {
-        this.carList = [
-                {
-                    id: 1,
-                    Model: "Audi",
-                    Couleur: "rouge",
-                    Dimensions: [1,2,3],
-                },
-                {
-                    id: 2,
-                    Model: "BMW",
-                    Couleur: "bleu",
-                    Dimensions: [1,2,3],
-                },
-                {
-                    id: 3,
-                    Model: "Mercedes",
-                    Couleur: "noir",
-                    Dimensions: [1,2,3],
-                },
-        ];
+      async getCarList() {
+        await this.api.getUserCars(this.pageId);
+        this.carList = this.api.response;
+        this.isFetching = false;
+      },
+      async postUserCar() {
+            // if(document.getElementById("height").match("[0-9]") && document.getElementById("width").value.isdigit() && document.getElementById("length").value.isdigit()
+            // && document.getElementById("height").value != "" && document.getElementById("width").value != "" && document.getElementById("length").value != ""
+            // && document.getElementById("model").value != "" && document.getElementById("color").value != "" && document.getElementById("plaque").value.length == 6){
+            //     console.log(document.getElementById("plaque").value);
+                await this.api.postCar(this.pageId, document.getElementById("plaque").value, document.getElementById("model").value, document.getElementById("color").value, document.getElementById("length").value,  document.getElementById("width").value, document.getElementById("height").value);
+                this.infoWrong = false;
+                this.getCarList();
+            // }
+            // else{
+            // this.infoWrong = true;
+            // }
       },
     },
 

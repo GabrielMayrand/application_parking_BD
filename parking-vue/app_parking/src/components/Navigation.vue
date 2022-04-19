@@ -5,7 +5,7 @@
     </div>
     <div class="navbar-end">
         <div class="navbar-item">
-            <div class="buttons">
+            <div class="buttons" v-if="!LoggedIn">
                 <router-link  :to="{path:`/signup`}">
                 <a class="button is-primary" ><strong>Sign up</strong></a>
                 </router-link>
@@ -13,15 +13,33 @@
                 <a class="button is-light" ><strong>Login</strong></a>
                 </router-link>
             </div>
+            <button class="button is-light" v-if="LoggedIn" @click="signOut">SignOut</button>
         </div>
     </div>
 </nav>
 </template>
 
 <script>
-
+import Cookies from "js-cookie";
 export default {
-
+    name : "Navigation",
+    data() {
+        return {
+            LoggedIn: false,
+        };
+    },
+    methods: {
+        signOut() {
+            Cookies.remove("token");
+            this.$router.push("/");
+            this.$router.go();
+        },
+    },
+    created() {
+        if (Cookies.get("token") != undefined) {
+            this.LoggedIn = true;
+        }
+    },
 };
 </script>
 

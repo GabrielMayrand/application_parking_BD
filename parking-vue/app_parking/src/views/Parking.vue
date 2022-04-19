@@ -52,6 +52,7 @@ export default {
         },
     },
     async created() {
+        this.$root.$refs.Parking = this;
         this.getParking();
     },
 }

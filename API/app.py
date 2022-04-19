@@ -208,7 +208,7 @@ def parkingList():
         return jsonify({'message': str(e)})
 
 
-@ app.route('/parking/<int:id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@ app.route('/parking/<string:id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def parking(id):
     try:
         if(request.method == 'GET'):
@@ -254,7 +254,7 @@ def parking(id):
         return jsonify({'message': str(e)})
 
 
-@ app.route('/parking/<int:parkingId>/plageHoraires/reservation', methods=['GET'])
+@ app.route('/parking/<string:parkingId>/plageHoraires/reservation', methods=['GET'])
 def plageHorairesReservation(parkingId):
     try:
         if(request.method == 'GET'):
@@ -281,7 +281,7 @@ def plageHorairesReservation(parkingId):
         return jsonify({'message': str(e)})
 
 
-@ app.route('/parking/<int:parkingId>/plageHoraires/inoccupable', methods=['GET'])
+@ app.route('/parking/<string:parkingId>/plageHoraires/inoccupable', methods=['GET'])
 def plageHorairesInoccupable(parkingId):
     try:
         if(request.method == 'GET'):
@@ -308,7 +308,7 @@ def plageHorairesInoccupable(parkingId):
         return jsonify({'message': str(e)})
 
 
-@ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/reserver', methods=['POST'])
+@ app.route('/parking/<string:parkingId>/plageHoraires/<string:plageHoraireId>/reserver', methods=['POST'])
 def reserver(parkingId, plageHoraireId):
     try:
         if(request.method == 'POST'):
@@ -323,7 +323,7 @@ def reserver(parkingId, plageHoraireId):
         return jsonify({'message': str(e)})
 
 
-@ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/inoccupable', methods=['POST'])
+@ app.route('/parking/<string:parkingId>/plageHoraires/<string:plageHoraireId>/inoccupable', methods=['POST'])
 def inoccupable(parkingId, plageHoraireId):
     try:
         if(request.method == 'POST'):
@@ -337,7 +337,7 @@ def inoccupable(parkingId, plageHoraireId):
         return jsonify({'message': str(e)})
 
 
-@ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>', methods=['DELETE'])
+@ app.route('/parking/<string:parkingId>/plageHoraires/<string:plageHoraireId>', methods=['DELETE'])
 def deletePlageHoraire(parkingId, plageHoraireId):
     try:
         if(request.method == 'DELETE'):

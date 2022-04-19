@@ -16,14 +16,6 @@
     </div>
 
     <div class="field">
-    <label class="label">Username</label>
-    <div class="control ">
-        <input class="input" type="text" placeholder="johnsmith" v-model="username">
-    </div>
-    <p class="help is-danger" v-if="!validUserName">This username is already taken or invalid</p>
-    </div>
-
-    <div class="field">
     <label class="label">Email</label>
     <div class="control ">
         <input class="input" type="email" placeholder="john@mail.com" v-model="email">
@@ -34,7 +26,7 @@
     <div class="field">
     <label class="label">Password</label>
     <div class="control ">
-        <input class="input" type="password" required v-model="password">
+        <input class="input" type="password" required v-model="password" placeholder="password">
     </div>
     </div>
     <button type="submit" class="button is-primary">Submit</button>
@@ -50,11 +42,12 @@
 </style>
 <script>
 import {API} from "../utility/api.js"; 
+import Cookies from "js-cookie";
+
 export default {
   data() {
     return {
         api : new API(),
-        validUserName: true,
         validEmail: true,
         validFirstName: true,
         validLastName: true,
@@ -69,8 +62,23 @@ export default {
 
   methods: {
     async submitForm(){
-      if(this.validateEmail() && this.validateUserName() && this.validateFirstName() && this.validateLastName() && this.validatePassword()){
-        await this.api.postSignUp(this.firstname, this.lastname, this.email, this.password);
+      if(this.validateEmail() && this.validateFirstName() && this.validateLastName() && this.validatePassword()){
+        let md5 = require('md5');
+        let hash = md5(this.password);
+        
+        await this.api.postSignUp(this.firstname, this.lastname, this.email, hash);
+        if(this.api.response.message == "Utilisateur déjà existant")
+        {
+          this.validEmail = false;
+        }
+        else
+        {
+          Cookies.remove("token");
+          this.$globalThis = this.api.response[0].token.toString();
+          Cookies.set("token", this.api.response[0].token.toString());
+          this.$router.push("../user/" + this.api.response.id);
+          this.$router.go();
+        }
       }
 
     },
@@ -83,34 +91,17 @@ export default {
         else{
           this.validEmail = false;
         }
-        console.log(this.email);
-        console.log(this.validEmail);
         return this.validEmail;
     },
 
     validatePassword(){
-      if(this.password.length > 5){
+      if(this.password.length > 1){
         this.validPassword = true;
       }
       else{
         this.validPassword = false;
       }
-      console.log(this.password);
-      console.log(this.validPassword);
       return this.validPassword;
-    },
-
-    validateUserName(){
-      var re = /^[a-zA-Z0-9]+$/;
-      if(re.test(String(this.username).toLowerCase())){
-        this.validUserName = true;
-      }
-      else{
-        this.validUserName = false;
-      }
-      console.log(this.username);
-      console.log(this.validUserName);
-      return this.validUserName;
     },
 
     validateFirstName(){
@@ -121,8 +112,6 @@ export default {
       else{
         this.validFirstName = false;
       }
-      console.log(this.firstname);
-      console.log(this.validFirstName);
       return this.validFirstName;
     },
 
@@ -134,12 +123,15 @@ export default {
       else{
         this.validLastName = false;
       }
-      console.log(this.lastname);
-      console.log(this.validLastName);
       return this.validLastName;
     }
 
   },
+
+  async created(){
+    console.log(Cookies.get("token"));
+    await this.api.getTokenInfo(Cookies.get("token"));
+  }
   
 };
 </script>

@@ -13,7 +13,7 @@
     <div class="field">
     <label class="label">Password</label>
     <div class="control ">
-        <input class="input" type="password" required v-model="password">
+        <input class="input" type="password" required v-model="password" placeholder="password">
     </div>
     </div>
     <button type="submit" class="button is-primary">Submit</button>
