@@ -331,6 +331,7 @@ END
 //
 DELIMITER ;
 
+DELIMITER //
 CREATE PROCEDURE delete_plagehoraire_beforeDate (IN p_dateActuelle DATE)
 BEGIN
     DECLARE cur_is_done BOOLEAN DEFAULT FALSE;
@@ -347,6 +348,8 @@ BEGIN
     END LOOP boucle;
     CLOSE cur;
 END
+//
+DELIMITER ;
 
 
 
@@ -398,3 +401,15 @@ INSERT INTO louer (id_utilisateur, id_plage_horaire) VALUES (@id3, 2), (@id3, 3)
 INSERT INTO Retirer (id_utilisateur, id_plage_horaire) VALUES (@id2, 1);
 
 INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUES (1, 3), (2, 3), (3, 1), (4, 2), (5, 1), (6, 2);
+
+DELIMITER //
+CREATE PROCEDURE create_utilisateurs()
+BEGIN
+    DECLARE donneesMax INT DEFAULT 100;
+    WHILE donneesMax > 0 DO
+        INSERT INTO Utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUE (md5(), sha1(), '', '', '', '');
+        SET donneesMax = donneesMax - 1;
+    END WHILE;
+END
+//
+DELIMITER ;
