@@ -1,8 +1,8 @@
 <template>
     <div class="container" id="parkingCard">
         <div class="notification is-link">
-            <router-link  :to="{path:`/parking/${this.parking.id}`}">
-                <h4 class="card-title">{{ this.parking.address }}</h4>
+            <router-link  :to="{path:`/parking/${this.parking.id_stationnement}`}">
+                <h4 class="card-title">{{ this.parking.emplacement }}</h4>
             </router-link>
         </div>
         
@@ -21,7 +21,6 @@ export default {
 #parkingCard {
     margin-bottom: 20px;
     padding: 10px;
-    max-width: fit-content;
 }
 
 </style>

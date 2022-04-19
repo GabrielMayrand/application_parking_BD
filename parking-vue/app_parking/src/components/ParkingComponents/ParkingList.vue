@@ -1,7 +1,7 @@
 <template>
   <div>
       <div id="ParkingList">
-          <ul v-for="parking in ParkingList" v-bind:key="parking.id">
+          <ul v-for="parking in ParkingList" v-bind:key="parking.id_stationnement">
             <ParkingCard id="parkingCard" :parking="parking"/>
           </ul>
       </div>

@@ -24,33 +24,7 @@ export default {
     methods: {
       async getParkingList() {
         await this.api.getParkingList();
-        console.log(this.api.response);
-        this.parkingList = [
-              {
-                id: 1,
-                advanceDays: 10,
-                finalDate: "2019-12-12",
-                dimensions:[10,30,40],
-                address: "155 rue de la gare, Québec, QC, Canada",
-                landlordId: 45,
-              },
-              {
-                id: 2,
-                advanceDays: 10,
-                finalDate: "2019-12-12",
-                dimensions:[10,30,40],
-                address: "155 rue de la gare, Québec, QC, Canada",
-                landlordId: 45,
-              },
-              {
-                id: 3,
-                advanceDays: 10,
-                finalDate: "2019-12-12",
-                dimensions:[10,30,40],
-                address: "155 rue de la gare, Québec, QC, Canada",
-                landlord: 45,
-              }
-        ]
+        this.parkingList = this.api.response;
       },
     },
     created() {

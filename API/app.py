@@ -1,9 +1,21 @@
 import collections
 from msilib import type_binary
+from multiprocessing import context
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from OpenSSL import crypto
+
+# with open("/", "r") as file:
+#     data = file.read()
+
+# x509 = crypto.load_certificate(crypto.FILETYPE_PEM, data);
+
+# p12 = crypto.PKCS12()
+# p12.set_certificate(x509)
+
 
 app = Flask(__name__)
 
@@ -438,4 +450,4 @@ def evalue(id_utilisateur_locataire, id_utilisateur_locateur):
 
 
 if __name__ == '__main__':
-    app.run(ssl_context='adhoc')
+    app.run(ssl_context=('./cert.crt', './certKey.key'), debug=True)

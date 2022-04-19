@@ -18,7 +18,7 @@ export class API {
     async getParkingList() {
         let HTTPOptions = {
             headers: {
-              // "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Type": "application/x-www-form-urlencoded",
             },
             method: "GET",
         };

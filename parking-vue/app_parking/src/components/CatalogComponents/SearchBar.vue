@@ -2,7 +2,7 @@
     <div id="wrapper">
         <input class="input " type="text" id="SearchBar" placeholder="Search an address">
         <button class="button is-primary " id="SearchButton">Search</button>
-        <button class="button is-primary " id="Filters">Filters</button>
+        <button class="button is-primary " id="Filters" @click="this.$root.$ref.Filters.filterToggleClicked()">Filters</button>
     </div>
     
 </template>

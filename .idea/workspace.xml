@@ -2,10 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="65f22a2e-b07a-401c-ab29-80e6685598a8" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/Run.txt" beforeDir="false" afterPath="$PROJECT_DIR$/API/Run.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/API/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/CatalogComponents/Browsing.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/CatalogComponents/Browsing.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/CatalogComponents/Filter.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/CatalogComponents/Filter.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/CatalogComponents/Filters.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/CatalogComponents/Filters.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/CatalogComponents/SearchBar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/CatalogComponents/SearchBar.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/ParkingComponents/ParkingCard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/ParkingComponents/ParkingCard.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/ParkingComponents/ParkingList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/ParkingComponents/ParkingList.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/utility/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/utility/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/views/Home.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/views/Home.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

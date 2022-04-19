@@ -1,10 +1,10 @@
 <template>
   <div>
-      <div id="Filters">
-          <ul v-for="filter in filters" v-bind:key="filter.id">
-            <FilterComponent  :filter="filter"/>
-          </ul>
-      </div>
+    <div id="filters">
+        <ul v-for="filter in filters" v-bind:key="filter.name">
+        <FilterComponent  :filterName="filter.name"/>
+        </ul>
+    </div>
   </div>
 </template>
 
@@ -13,15 +13,59 @@ import FilterComponent from "./Filter.vue";
 
 export default {
     name : "Filters",
-    props: {
-        filters: Array,
+    data() {
+        return {
+            filters: [],
+            filtersCheked: [],
+        }
     },
     components: {
         FilterComponent,
+    },
+    methods:{
+        // filterChange(filterName, value){
+            
+        // },
+    },
+    created() {
+        this.$root.$refs.filters = this;
+        this.filters=[
+            {
+                name:"prixMin",
+
+            },
+            {
+                name:"prixMax",
+            },
+            {
+                name:"joursDavance",
+            },
+            {
+                name:"longueur",
+            },
+            {
+                name:"largeur",
+            },
+            {
+                name:"hauteur",
+            },
+            {
+                name:"dateFin",
+            },
+        ];
     },
 };
 </script>
 
 <style scoped>
-
+#filters{
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    margin-left:10px;
+    padding:10px;
+    border-style: solid;
+    border-color: rgb(0, 196, 167);
+    border-radius: 10px;
+}
 </style>
