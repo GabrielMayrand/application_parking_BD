@@ -375,7 +375,7 @@ INSERT INTO Vehicule (plaque, modele, couleur, longueur, largeur, hauteur)
            ('E60BON', 'Civic', 'Bleu', 4.250, 1.760, 1.460),
            ('B74BLA', 'Accent', 'Bleu', 4.186, 1.730, 1.450);
 
-INSERT INTO Appartient (id_utilisateur, plaque) VALUES (1, 'K99QQX'), (3, 'E60BON'), (4, 'B74BLA');
+INSERT INTO Appartient (id_utilisateur, plaque) VALUES (@id1, 'K99QQX'), (@id3, 'E60BON'), (@id4, 'B74BLA');
 
 INSERT INTO Stationnement (id_stationnement, prix, longueur, largeur, hauteur, emplacement, jours_d_avance, date_fin)
     VALUES (1, 45, 6, 3, 5, '783 avenue Myrand', 2, '22-06-01'),
@@ -403,13 +403,90 @@ INSERT INTO Retirer (id_utilisateur, id_plage_horaire) VALUES (@id2, 1);
 INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUES (1, 3), (2, 3), (3, 1), (4, 2), (5, 1), (6, 2);
 
 DELIMITER //
-CREATE PROCEDURE create_utilisateurs()
+CREATE PROCEDURE create_data()
 BEGIN
-    DECLARE donneesMax INT DEFAULT 100;
-    WHILE donneesMax > 0 DO
-        INSERT INTO Utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUE (md5(), sha1(), '', '', '', '');
-        SET donneesMax = donneesMax - 1;
+    DECLARE donnees INT DEFAULT 99;
+    DECLARE courriel char(50);
+    DECLARE id_utilisateur char(32);
+    WHILE donnees > 0 DO
+        SET courriel = CONCAT('test', donnees, '@mail.com');
+        SET id_utilisateur = md5(courriel);
+        call create_data_utilisateur(donnees, courriel, id_utilisateur);
+        call create_data_voiture(donnees, id_utilisateur);
+        call create_data_stationnement(donnees, id_utilisateur);
+        call create_data_plageHoraire(donnees, id_utilisateur);
+        SET donnees = donnees - 1;
     END WHILE;
 END
 //
 DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE create_data_utilisateur(IN donnees INT, p_courriel char(50), p_id_utilisateur char(32))
+BEGIN
+    INSERT INTO Utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe)
+        VALUE (p_id_utilisateur, sha1(p_courriel), p_courriel, 'Monsieur', CONCAT('Test', donnees), 'password');
+    IF (donnees % 2) = 0 THEN
+        INSERT INTO Locateur (id_utilisateur, cote) VALUES (p_id_utilisateur, NULL);
+    ELSE
+        INSERT INTO Locataire (id_utilisateur) VALUES (p_id_utilisateur);
+    END IF;
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE create_data_voiture(IN donnees INT, p_id_utilisateur char(50))
+BEGIN
+    DECLARE _plaque char(6);
+    IF donnees < 10 THEN
+        SET _plaque = CONCAT('K', 0, donnees, 'VHE');
+    ELSE
+        SET _plaque = CONCAT('K', donnees, 'VHE');
+    END IF;
+    INSERT INTO Vehicule (plaque, modele, couleur, longueur, largeur, hauteur)
+        VALUE (_plaque, 'Toyota', 'Noir', donnees % 5, donnees % 4, donnees % 3);
+    IF (donnees % 2) = 1 THEN
+        INSERT INTO Appartient (id_utilisateur, plaque) VALUES (p_id_utilisateur, _plaque);
+    END IF;
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE create_data_stationnement(IN donnees INT, p_id_utilisateur char(50))
+BEGIN
+    DECLARE _id_stationnement char(32);
+    SET _id_stationnement = md5(donnees);
+    INSERT INTO Stationnement (id_stationnement, prix, longueur, largeur, hauteur, emplacement, jours_d_avance, date_fin)
+        VALUE (_id_stationnement, donnees % 100, donnees % 10, donnees % 8, donnees % 12, CONCAT('emplacement', donnees),
+               donnees % 15, CONCAT('2022-', donnees % 12, '-', donnees % 28));
+    IF (donnees % 2) = 0 THEN
+        INSERT INTO Gerer (id_utilisateur, id_stationnement) VALUES (p_id_utilisateur, _id_stationnement);
+    END IF;
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE create_data_plageHoraire(IN donnees INT, p_id_utilisateur char(50))
+BEGIN
+    DECLARE _id_plage_horaire char(32);
+    SET _id_plage_horaire = md5(donnees + 100);
+    INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart)
+        VALUE (_id_plage_horaire,
+               CONCAT('2022-', donnees % 12, '-', donnees % 28, ' ', donnees % 24, ':', donnees % 60, ':00'),
+               CONCAT('2022-', donnees % 12, '-', donnees % 28, ' ', donnees % 24, ':', donnees % 60, ':00'));
+    INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUES (_id_plage_horaire, md5(donnees));
+    IF (donnees % 2) = 0 THEN
+        INSERT INTO Reservation (id_plage_horaire) VALUE (_id_plage_horaire);
+        INSERT INTO Louer (id_plage_horaire, id_utilisateur) VALUE (_id_plage_horaire, p_id_utilisateur);
+    ELSE
+        INSERT INTO Inoccupable (id_plage_horaire) VALUE (_id_plage_horaire);
+        INSERT INTO Retirer (id_plage_horaire, id_utilisateur) VALUE (_id_plage_horaire, p_id_utilisateur);
+    END IF;
+END
+//
+DELIMITER ;
+
+call create_data();
