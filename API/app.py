@@ -205,7 +205,7 @@ def parkingList():
                 objParking.append(d)
             return jsonify(objParking)
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
 
 
 @ app.route('/parking/<int:id>', methods=['GET', 'POST', 'PUT', 'DELETE'])
@@ -236,22 +236,22 @@ def parking(id):
             cur.execute("call insert_parking(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                         (id, data['id_utilisateur'], data['prix'], data['longueur'], data['largeur'], data['hauteur'], data['emplacement'], data['jours_d_avance'], data['date_fin']))
             mysql.connection.commit()
-            return 'Parking ajoutée'
+            return jsonify({'message': 'Parking ajoutée'})
         elif(request.method == 'PUT'):
             data = request.get_json()
             cur = mysql.connection.cursor()
             cur.execute("UPDATE stationnement SET prix=%s, longueur=%s, largeur=%s, hauteur=%s, emplacement=%s, jours_d_avance=%s, date_fin=%s WHERE id_stationnement=%s",
                         (data['prix'], data['longueur'], data['largeur'], data['hauteur'], data['emplacement'], data['jours_d_avance'], data['date_fin'], id))
             mysql.connection.commit()
-            return 'Parking updated'
+            return jsonify({'message': 'Parking updated'})
         elif(request.method == 'DELETE'):
             cur = mysql.connection.cursor()
             cur.execute(
                 "call delete_stationnement(%s)", [id])
             mysql.connection.commit()
-            return 'Parking supprimée'
+            return jsonify({'message': 'Parking supprimée'})
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
 
 
 @ app.route('/parking/<int:parkingId>/plageHoraires/reservation', methods=['GET'])
@@ -278,7 +278,7 @@ def plageHorairesReservation(parkingId):
                 objPlageHoraires.append(d)
             return jsonify(objPlageHoraires)
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
 
 
 @ app.route('/parking/<int:parkingId>/plageHoraires/inoccupable', methods=['GET'])
@@ -305,7 +305,7 @@ def plageHorairesInoccupable(parkingId):
                 objPlageHoraires.append(d)
             return jsonify(objPlageHoraires)
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
 
 
 @ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/reserver', methods=['POST'])
@@ -318,9 +318,9 @@ def reserver(parkingId, plageHoraireId):
             cur.execute("call insert_plageHoraire_reserver(%s, %s, %s, %s, %s)",
                         (data['date_arrivee'], data['date_depart'], parkingId, plageHoraireId, data['id_utilisateur']))
             mysql.connection.commit()
-            return 'Plage reservation ajoutée'
+            return jsonify({'message': 'Plage reservation ajoutée'})
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
 
 
 @ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>/inoccupable', methods=['POST'])
@@ -332,9 +332,9 @@ def inoccupable(parkingId, plageHoraireId):
             cur.execute("call insert_plageHoraire_inoccupable(%s, %s, %s, %s, %s)",
                         (data['date_arrivee'], data['date_depart'], parkingId, plageHoraireId, data['id_utilisateur']))
             mysql.connection.commit()
-            return 'Plage inoccupable ajoutée'
+            return jsonify({'message': 'Plage inoccupable ajoutée'})
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
 
 
 @ app.route('/parking/<int:parkingId>/plageHoraires/<int:plageHoraireId>', methods=['DELETE'])
@@ -346,9 +346,22 @@ def deletePlageHoraire(parkingId, plageHoraireId):
                 "call delete_plageHoraire ((SELECT id_plage_horaire FROM Possede WHERE id_plage_horaire = %s AND id_stationnement = %s))",
                 (plageHoraireId, parkingId))
             mysql.connection.commit()
-            return 'Plage horaire supprimée'
+            return jsonify({'message': 'Plage horaire supprimée'})
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
+
+
+@ app.route('/removeUselessPlageHoraireBefore/<string:dateActuelle>', methods=['DELETE'])
+def removeUselessPlageHoraire(dateActuelle):
+    try:
+        if(request.method == 'DELETE'):
+            cur = mysql.connection.cursor()
+            cur.execute("call delete_plagehoraire_beforeDate(%s)",
+                        [dateActuelle])
+            mysql.connection.commit()
+            return jsonify({'message': 'Plage horaire supprimées'})
+    except Exception as e:
+        return jsonify({'message': str(e)})
 
 
 @ app.route('/user/<string:id>', methods=['GET', 'DELETE'])
@@ -374,13 +387,13 @@ def utilisateur_id(id):
             auth_token = get_token_from_request(request.headers)
             cur = mysql.connection.cursor()
             if auth_token is None:
-                return 'Token manquant'
+                return jsonify({'message': 'Token manquant'})
             cur.execute(
                 "call delete_utilisateur(%s, %s);", (id, auth_token))
             mysql.connection.commit()
-            return 'Utilisateur supprimé'
+            return jsonify({'message': 'Utilisateur supprimé'})
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
 
 
 @ app.route('/user/<string:id>/parkingList', methods=['GET'])
@@ -405,7 +418,7 @@ def utilisateur_id_parkingList(id):
                 objParking.append(d)
             return jsonify(objParking)
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
 
 
 @ app.route('/user/<string:id>/cars', methods=['GET', 'POST'])
@@ -433,9 +446,9 @@ def utilisateur_id_cars(id):
             cur.execute("call insert_vehicule(%s, %s, %s, %s, %s, %s, %s)",
                         (data['plaque'], data['modele'], data['couleur'], data['longueur'], data['largeur'], data['hauteur'], id))
             mysql.connection.commit()
-            return 'Voiture ajoutée'
+            return jsonify({'message': 'Voiture ajoutée'})
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
 
 
 @ app.route('/user/<string:id_utilisateur>/cars/<string:plaque>', methods=['PUT', 'DELETE'])
@@ -447,14 +460,14 @@ def cars_id(id_utilisateur, plaque):
             cur.execute("UPDATE Vehicule SET modele=%s, couleur=%s, longueur=%s, largeur=%s, hauteur=%s WHERE plaque=%s",
                         (data['modele'], data['couleur'], data['longueur'], data['largeur'], data['hauteur'], plaque))
             mysql.connection.commit()
-            return 'Voiture modifiée'
+            return jsonify({'message': 'Voiture modifiée'})
         if(request.method == 'DELETE'):
             cur = mysql.connection.cursor()
             cur.execute("call delete_voiture(%s)", [plaque])
             mysql.connection.commit()
-            return 'Voiture supprimée'
+            return jsonify({'message': 'Voiture supprimée'})
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
 
 
 @ app.route('/user/<string:id_utilisateur_locataire>/evalue/<string:id_utilisateur_locateur>', methods=['POST'])
@@ -466,9 +479,9 @@ def evalue(id_utilisateur_locataire, id_utilisateur_locateur):
             cur.execute("INSERT INTO Evalue (id_utilisateur_locataire, id_utilisateur_locateur, cote) VALUE (%s, %s, %s)",
                         (id_utilisateur_locataire, id_utilisateur_locateur, data['cote']))
             mysql.connection.commit()
-            return 'Evaluation ajoutée'
+            return jsonify({'message': 'Evaluation ajoutée'})
     except Exception as e:
-        return str(e)
+        return jsonify({'message': str(e)})
 
 
 if __name__ == '__main__':

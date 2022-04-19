@@ -331,6 +331,26 @@ END
 //
 DELIMITER ;
 
+DELIMITER //
+CREATE PROCEDURE delete_plagehoraire_beforeDate (IN p_dateActuelle DATE)
+BEGIN
+    DECLARE cur_is_done BOOLEAN DEFAULT FALSE;
+    DECLARE cur_id_plage_horaire CHAR(20);
+    DECLARE cur CURSOR FOR SELECT id_plage_horaire FROM Plage_horaire WHERE date_depart < p_dateActuelle;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET cur_is_done = TRUE;
+    OPEN cur;
+    boucle: LOOP
+        FETCH cur INTO cur_id_plage_horaire;
+        IF cur_is_done THEN
+            LEAVE boucle;
+        END IF;
+        call delete_plageHoraire (cur_id_plage_horaire);
+    END LOOP boucle;
+    CLOSE cur;
+END
+//
+DELIMITER ;
+
 
 
 set @id1 = md5('joe.blo@mail.com');
@@ -381,3 +401,15 @@ INSERT INTO louer (id_utilisateur, id_plage_horaire) VALUES (@id3, 2), (@id3, 3)
 INSERT INTO Retirer (id_utilisateur, id_plage_horaire) VALUES (@id2, 1);
 
 INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUES (1, 3), (2, 3), (3, 1), (4, 2), (5, 1), (6, 2);
+
+DELIMITER //
+CREATE PROCEDURE create_utilisateurs()
+BEGIN
+    DECLARE donneesMax INT DEFAULT 100;
+    WHILE donneesMax > 0 DO
+        INSERT INTO Utilisateur (id_utilisateur, token, courriel, nom, prenom, mot_de_passe) VALUE (md5(), sha1(), '', '', '', '');
+        SET donneesMax = donneesMax - 1;
+    END WHILE;
+END
+//
+DELIMITER ;
