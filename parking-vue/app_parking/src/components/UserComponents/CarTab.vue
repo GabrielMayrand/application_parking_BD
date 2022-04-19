@@ -1,6 +1,22 @@
  <template>
   <div>
-    <CarList :CarList="carList"/>
+      <div id="createCarForm">
+          <button class="button is-primary">Create Car</button>
+          <div class="form">
+                <input class="input" type="input" placeholder="License plate"/>           
+                <input class="input" type="input" placeholder="Model"/>
+                <input class="input" type="input" placeholder="Color"/>
+          </div>
+          <div id="dimensionsForm" class="form">
+                <input class="input" type="input" placeholder="height"/>
+                <input class="input" type="input" placeholder="width"/>
+                <input class="input" type="input" placeholder="length"/>
+          </div>
+
+      </div>
+        
+        
+        <CarList :CarList="carList"/>
   </div>
 </template>
 
@@ -50,5 +66,18 @@ export default {
 </script>
 
 <style scoped>
-
+    #createCarForm{
+        display: flex;
+        justify-content: column;
+    }
+    .input{
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    .button{
+        margin: 5px;
+    }
+    .form{
+        margin: 5px;
+    }
 </style>
