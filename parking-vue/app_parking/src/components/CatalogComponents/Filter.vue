@@ -1,7 +1,6 @@
 <template>
     <div class="filterInputs">
         <div class="titreInput">
-            <input class="checkbox" type="checkbox" id='filterChecked' >
             {{filter.name}}
         </div>
         <input class="inputBox" :id='filter.name'>

@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="65f22a2e-b07a-401c-ab29-80e6685598a8" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3/storage_v2/_src_/schema/application_parking.yQ96gQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3/storage_v2/_src_/schema/application_parking.yQ96gQ.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BD/CreateTables.sql" beforeDir="false" afterPath="$PROJECT_DIR$/BD/CreateTables.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

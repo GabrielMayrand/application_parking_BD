@@ -1035,12 +1035,12 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     <routine id="296" parent="274" name="select_parkingList">
       <Definer>root@localhost</Definer>
       <RoutineKind>procedure</RoutineKind>
-      <SourceTextLength>1556</SourceTextLength>
+      <SourceTextLength>1519</SourceTextLength>
     </routine>
     <routine id="297" parent="274" name="select_plageHoraire">
       <Definer>root@localhost</Definer>
       <RoutineKind>procedure</RoutineKind>
-      <SourceTextLength>1339</SourceTextLength>
+      <SourceTextLength>1165</SourceTextLength>
     </routine>
     <table id="298" parent="274" name="appartient">
       <Engine>InnoDB</Engine>

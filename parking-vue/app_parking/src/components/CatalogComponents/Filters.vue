@@ -4,6 +4,7 @@
         <ul v-for="filter in filters" v-bind:key="filter.name">
         <FilterComponent  :filter="filter"/>
         </ul>
+        <button class="button is-primary">Apply</button>
     </div>
   </div>
 </template>
@@ -32,37 +33,30 @@ export default {
         this.filters=[
             {
                 name:"prixMin",
-                checked:false,
                 value:0,
             },
             {
                 name:"prixMax",
-                checked:false,
                 value:0,
             },
             {
                 name:"joursDavance",
-                checked:false,
                 value:0,
             },
             {
                 name:"longueur",
-                checked:false,
                 value:0,
             },
             {
                 name:"largeur",
-                checked:false,
                 value:0,
             },
             {
                 name:"hauteur",
-                checked:false,
                 value:0,
             },
             {
                 name:"dateFin",
-                checked:false,
                 value:0,
             },
         ];
@@ -76,6 +70,7 @@ export default {
     flex-direction: column;
     margin-top: 10px;
     margin-left:10px;
+    margin-top: 10px;
     padding:10px;
     border-style: solid;
     border-color: rgb(0, 196, 167);
