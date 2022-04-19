@@ -409,7 +409,7 @@ def utilisateur_id_cars(id):
 
 
 @ app.route('/user/<string:id_utilisateur>/cars/<string:plaque>', methods=['PUT', 'DELETE'])
-def cars_id(plaque):
+def cars_id(id_utilisateur, plaque):
     try:
         if(request.method == 'PUT'):
             data = request.get_json()

@@ -78,7 +78,6 @@ CREATE PROCEDURE select_parkingList
 BEGIN
     DROP TABLE IF EXISTS tempStationnement;
     CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement);
-    SELECT * FROM tempStationnement;
     IF p_prixMin is not NULL and p_prixMax is not NULL THEN
         DELETE FROM tempStationnement WHERE id_stationnement NOT IN
                                         (SELECT id_stationnement FROM stationnement WHERE p_prixMin <= prix
@@ -107,9 +106,6 @@ DELIMITER //
 CREATE PROCEDURE select_plageHoraire
     (IN p_debut datetime, p_fin datetime, p_id_stationnement char(20))
 BEGIN
-    DROP TABLE IF EXISTS tempStationnement;
-    CREATE TEMPORARY TABLE IF NOT EXISTS tempStationnement AS (SELECT * FROM stationnement);
-    SELECT * FROM tempStationnement;
     IF p_debut is not NULL and p_fin is not NULL THEN
         SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
                                           (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)
