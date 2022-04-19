@@ -109,15 +109,15 @@ BEGIN
     IF p_debut is not NULL and p_fin is not NULL THEN
         SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
                                           (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)
-                                      AND p_debut >= date_arrivee AND p_fin <= date_depart;
+                                      AND p_debut <= date_arrivee AND p_fin >= date_depart;
     ELSEIF p_debut is not NULL and p_fin is NULL THEN
         SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
                                           (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)
-                                      AND p_debut >= date_arrivee;
+                                      AND p_debut <= date_arrivee;
     ELSEIF p_debut is NULL and p_fin is not NULL THEN
         SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
                                           (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement)
-                                      AND p_fin <= date_depart;
+                                      AND p_fin >= date_depart;
     ELSE
         SELECT * FROM Plage_horaire WHERE id_plage_horaire IN
                                           (SELECT id_plage_horaire FROM possede WHERE id_stationnement = p_id_stationnement);
