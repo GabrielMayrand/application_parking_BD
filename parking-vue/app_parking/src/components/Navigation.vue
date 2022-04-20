@@ -16,7 +16,7 @@
             <div>
                 <button class="button is-light" v-if="LoggedIn" @click="signOut">SignOut</button>
                 
-                <a class="button is-primary" @click="changePage()"><strong>Profile</strong></a>
+                <a class="button is-primary" @click="changePage()" v-if="LoggedIn"><strong>Profile</strong></a>
                 
             </div>
         </div>

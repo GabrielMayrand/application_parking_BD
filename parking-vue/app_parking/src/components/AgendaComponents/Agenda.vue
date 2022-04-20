@@ -67,6 +67,7 @@ export default {
     methods: {
         async createReservation() {
             if(document.getElementById("date_depart").value.match(/^\d{4}-\d{2}-\d{2}$/) && document.getElementById("date_depart").value.match(/^\d{4}-\d{2}-\d{2}$/) && document.getElementById("heure_arrivee").value.match(/^\d{2}:\d{2}$/) && document.getElementById("heure_depart").value.match(/^\d{2}:\d{2}$/)) {
+                
                 await this.api.postReservation(this.pageId, this.connectedUser, 
                 `${document.getElementById("date_arrivee").value} ${document.getElementById("heure_arrivee").value}:00`, 
                 `${document.getElementById("date_depart").value} ${document.getElementById("heure_depart").value}:00`);

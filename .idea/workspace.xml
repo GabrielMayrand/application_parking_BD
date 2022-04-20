@@ -5,7 +5,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3/storage_v2/_src_/schema/application_parking.yQ96gQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3/storage_v2/_src_/schema/application_parking.yQ96gQ.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/views/Login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/views/Login.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/AgendaComponents/Agenda.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/AgendaComponents/Agenda.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/components/Navigation.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/components/Navigation.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/utility/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/utility/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parking-vue/app_parking/src/views/Parking.vue" beforeDir="false" afterPath="$PROJECT_DIR$/parking-vue/app_parking/src/views/Parking.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

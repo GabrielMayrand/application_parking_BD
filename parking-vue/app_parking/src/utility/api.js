@@ -161,6 +161,25 @@ export class API {
     await this.getAPIDataSecure(URL, HTTPOptions);
   }
 
+  async postInoccupable(id, id_utilisateur, date_arrivee, date_depart) {
+    let query = {
+      id_utilisateur: `${id_utilisateur}`,
+      date_arrivee: `${date_arrivee}`,
+      date_depart: `${date_depart}`,
+    };
+    let HTTPOptions = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify(query),
+    };
+    let md5 = require("md5");
+    let idPlage = md5(Math.floor(Math.random() * 999999999));
+    let URL = "parking/" + id + "/plageHoraires/"+ idPlage.toString() +"/inoccupable";
+    await this.getAPIDataSecure(URL, HTTPOptions);
+  }
+
   async postCar(userId, plaque , modele, couleur, longueur, hauteur, largeur) {
     let query = {
       plaque: `${plaque}`,

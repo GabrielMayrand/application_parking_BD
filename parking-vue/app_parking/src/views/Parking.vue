@@ -1,7 +1,7 @@
 /<template>
     <div>
         <ParkingInfo v-if="!isFetching" :parking="parking[0]" :owner="owner[0]"/>
-        <Agenda v-if="!isFetching" :plagesHorairesReservation="plagesHorairesReservation" :plagesHorairesInoccupable="plagesHorairesInoccupable" :finalDate="parking[0].date_fin"/>
+        <Agenda v-if="!isFetching" :plagesHorairesReservation="plagesHorairesReservation" :plagesHorairesInoccupable="plagesHorairesInoccupable" :finalDate="parking[0].date_fin" :owner="this.owner[0]"/>
         <!-- <ParkingHoraire :parking="this.parking[0]" :plagesHoraire="this.plagesHoraire"/> -->
     </div>
 </template>
