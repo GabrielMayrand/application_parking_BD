@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="65f22a2e-b07a-401c-ab29-80e6685598a8" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3/storage_v2/_src_/schema/application_parking.yQ96gQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/b45da153-a34b-420c-9cc8-230506a4b7d3/storage_v2/_src_/schema/application_parking.yQ96gQ.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
@@ -49,16 +48,5 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="OracleBreakpointType">
-          <url>file://$PROJECT_DIR$/BD/CreateTables.sql</url>
-          <line>139</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

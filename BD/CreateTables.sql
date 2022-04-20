@@ -472,11 +472,11 @@ DELIMITER //
 CREATE PROCEDURE create_data_plageHoraire(IN donnees INT, p_id_utilisateur char(50))
 BEGIN
     DECLARE _id_plage_horaire char(32);
+    DECLARE _date_arrivee DATETIME;
     SET _id_plage_horaire = md5(donnees + 100);
+    SET _date_arrivee = CONCAT('2022-', donnees % 12, '-', donnees % 28, ' ', donnees % 24, ':', donnees % 60, ':00');
     INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart)
-        VALUE (_id_plage_horaire,
-               CONCAT('2022-', donnees % 12, '-', donnees % 28, ' ', donnees % 24, ':', donnees % 60, ':00'),
-               CONCAT('2022-', donnees % 12, '-', donnees % 28, ' ', donnees % 24, ':', donnees % 60, ':00'));
+        VALUE (_id_plage_horaire, _date_arrivee, _date_arrivee + INTERVAL 1 HOUR);
     INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUES (_id_plage_horaire, md5(donnees));
     IF (donnees % 2) = 0 THEN
         INSERT INTO Reservation (id_plage_horaire) VALUE (_id_plage_horaire);
@@ -484,6 +484,27 @@ BEGIN
     ELSE
         INSERT INTO Inoccupable (id_plage_horaire) VALUE (_id_plage_horaire);
         INSERT INTO Retirer (id_plage_horaire, id_utilisateur) VALUE (_id_plage_horaire, p_id_utilisateur);
+    END IF;
+END
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE create_data_plageHoraire_oneStationnement(IN donnees INT, p_id_utilisateur char(50))
+BEGIN
+    DECLARE _id_plage_horaire char(32);
+    DECLARE _date_arrivee DATETIME;
+    SET _id_plage_horaire = md5(donnees + 100);
+    SET _date_arrivee = CONCAT('2022-', donnees % 12, '-', donnees % 28, ' ', donnees % 24, ':', donnees % 60, ':00');
+    INSERT INTO Plage_horaire (id_plage_horaire, date_arrivee, date_depart)
+        VALUE (_id_plage_horaire, _date_arrivee, _date_arrivee + INTERVAL 1 HOUR);
+    INSERT INTO Possede (id_plage_horaire, id_stationnement) VALUES (_id_plage_horaire, 1);
+    IF (donnees % 2) = 0 THEN
+        INSERT INTO Reservation (id_plage_horaire) VALUE (_id_plage_horaire);
+        INSERT INTO Louer (id_plage_horaire, id_utilisateur) VALUE (_id_plage_horaire, p_id_utilisateur);
+    ELSE
+        INSERT INTO Inoccupable (id_plage_horaire) VALUE (_id_plage_horaire);
+        INSERT INTO Retirer (id_plage_horaire, id_utilisateur) VALUE (_id_plage_horaire, @id1);
     END IF;
 END
 //
