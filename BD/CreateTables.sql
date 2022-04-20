@@ -60,6 +60,10 @@ CREATE INDEX idx_prix_stationnement ON Stationnement (prix) USING BTREE;
 CREATE INDEX idx_plageHoraire_dateDebut ON Plage_horaire (date_arrivee) USING BTREE;
 CREATE INDEX idx_plageHoraire_dateFin ON Plage_horaire (date_depart) USING BTREE;
 
+CREATE INDEX idx_appartient_idUtilisateur ON appartient(id_utilisateur) USING HASH;
+
+CREATE INDEX idx_possede_idPlageHorraire on possede(id_plage_horaire) USING HASH;
+
 
 
 DELIMITER //
