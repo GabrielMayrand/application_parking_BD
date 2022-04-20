@@ -13,19 +13,27 @@
                 <a class="button is-light" ><strong>Login</strong></a>
                 </router-link>
             </div>
-            <button class="button is-light" v-if="LoggedIn" @click="signOut">SignOut</button>
+            <div>
+                <button class="button is-light" v-if="LoggedIn" @click="signOut">SignOut</button>
+                
+                <a class="button is-primary" @click="changePage()"><strong>Profile</strong></a>
+                
+            </div>
         </div>
     </div>
 </nav>
 </template>
 
 <script>
+import {API} from "../utility/api.js";
 import Cookies from "js-cookie";
 export default {
     name : "Navigation",
     data() {
         return {
+            api : new API(),
             LoggedIn: false,
+            userId: "",
         };
     },
     methods: {
@@ -34,12 +42,21 @@ export default {
             this.$router.push("/");
             this.$router.go();
         },
+        changePage() {
+        this.$router.push(`/user/${this.userId}`);
+        this.$router.go();
+        },
     },
-    created() {
+    async created() {
+
         if (Cookies.get("token") != undefined) {
             this.LoggedIn = true;
+            await this.api.getTokenInfo(Cookies.get("token"));
+            this.userId = this.api.response[0].id_utilisateur;
         }
+        
     },
+    
 };
 </script>
 

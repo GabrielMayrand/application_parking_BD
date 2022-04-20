@@ -1,6 +1,6 @@
  <template>
   <div>
-    <div class="createParkingForm">
+    <div class="createParkingForm" v-if="isAdmin">
       <div class="part">
         <input type="price" class="input" placeholder="Price" id="price">
         <input type="text" class="input" placeholder="length" id="length">
@@ -21,6 +21,7 @@
 <script>
 import ParkingList from "./../ParkingComponents/ParkingList.vue"
 import {API} from "../../utility/api.js";
+import Cookies from 'js-cookie';
 export default {
     components: {
         ParkingList,
@@ -32,6 +33,8 @@ export default {
           api: new API(),
           pageId : this.$route.params.id,
           isFetching: true,
+          isConnected : false,
+          isAdmin : false,
         }
     },
     methods:{
@@ -52,8 +55,16 @@ export default {
           // }
         },
     },
-    created() {
+    async created() {
         this.getParkingList();
+        
+        if(Cookies.get('token') != '' || Cookies.get('token') != undefined){
+          this.isConnected = true;
+          await this.api.getTokenInfo(Cookies.get('token'));
+          if(this.api.response[0].id_utilisateur == this.pageId){
+            this.isAdmin = true;
+          }
+        }
     },
 };
 </script>

@@ -7,7 +7,7 @@
     <div class="control ">
         <input class="input" type="email" placeholder="john@mail.com" v-model="email">
     </div>
-    <p class="help is-danger" v-if="!validEmail">This email is invalid</p>
+    <p class="help is-danger" v-if="!validEmail">{{invalidMessage}}</p>
     </div>
 
     <div class="field">
@@ -27,23 +27,41 @@
         position: relative;
     }
 </style>
-<script>
 
+
+<script>
+import {API} from "../utility/api.js";
+import Cookies from "js-cookie";
 export default {
   data() {
     return {
+      api : new API(),
         validEmail: true,
         validPassword: true,
         email: "",
         password: "",
+        invalidMessage: "",
     };
   },
 
   methods: {
-    submitForm(){
-      if(this.validateEmail() && this.validateUserName() && this.validateFirstName() && this.validateLastName() && this.validatePassword()){
-        console.log("form submitted");
-        this.$router.push({ name: 'Home' });
+    async submitForm(){
+      if(this.validateEmail() && this.validatePassword()){
+        let md5 = require('md5');
+        let hash = md5(this.password);
+        await this.api.postLogin(this.email, hash);
+        if(this.api.response.message == "Utilisateur non trouvé" || this.api.response.message == "Mot de passe incorrect")
+        {
+          this.validEmail = false;
+          this.invalidMessage = this.api.response.message;
+        }
+        else if (this.api.response[0].courriel == this.email )
+        {
+          Cookies.set('user', this.api.response[0].id_utilisateur);
+          Cookies.set('user_type', this.api.response[0].type_utilisateur);
+          this.$router.push('/user/' + this.api.response[0].id_utilisateur);
+        }
+        
       }
 
     },
@@ -56,8 +74,6 @@ export default {
         else{
           this.validEmail = false;
         }
-        console.log(this.email);
-        console.log(this.validEmail);
         return this.validEmail;
     },
 
@@ -68,8 +84,6 @@ export default {
       else{
         this.validPassword = false;
       }
-      console.log(this.password);
-      console.log(this.validPassword);
       return this.validPassword;
     },
 

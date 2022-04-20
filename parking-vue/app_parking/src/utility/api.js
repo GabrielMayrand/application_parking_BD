@@ -28,7 +28,6 @@ export class API {
     let URL = "tokenInfo";
 
     await this.getAPIDataSecure(URL, HTTPOptions);
-    console.log(this.response);
   }
 
   async getParkingList() {
@@ -199,7 +198,6 @@ export class API {
     };
     let URL = "signup";
     await this.getAPIDataSecure(URL, HTTPOptions);
-    console.log(this.response);
   }
 
   async postLogin(courriel, password) {
@@ -216,7 +214,6 @@ export class API {
     };
     let URL = "login";
     await this.getAPIDataSecure(URL, HTTPOptions);
-    console.log(this.response);
   }
 
 }  

@@ -1,6 +1,6 @@
  <template>
   <div>
-        <div id="createCarForm">
+        <div id="createCarForm" v-if="isAdmin">
             <button class="button is-primary" @click="postUserCar()">Create Car</button>
             
             <div class="form">
@@ -24,6 +24,7 @@
 <script>
 import CarList from "./CarList.vue"
 import {API} from "../../utility/api.js";
+import Cookies from 'js-cookie';
 
 export default {
     data(){
@@ -33,6 +34,8 @@ export default {
             api: new API(),
             isFetching: true,
             pageId : this.$route.params.id,
+            isAdmin : false,
+            isConnected : false,
         }
     },
 
@@ -61,8 +64,15 @@ export default {
       },
     },
 
-    created() {
+    async created() {
         this.getCarList();
+        if(Cookies.get('token') != '' || Cookies.get('token') != undefined){
+          this.isConnected = true;
+          await this.api.getTokenInfo(Cookies.get('token'));
+          if(this.api.response[0].id_utilisateur == this.pageId){
+            this.isAdmin = true;
+          }
+        }
     },
 };
 </script>

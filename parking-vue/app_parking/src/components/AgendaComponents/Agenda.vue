@@ -22,7 +22,7 @@
         <div>
             <div class="title">Reserved</div>
             <ul v-for="plage in plagesHorairesReservation" v-bind:key="plage.id_plage_horaires">
-            <div class="reserve card">
+            <div class="reserve card" v-if="plage.date_arrivee != null && plage.date_depart != null">
                 <Plage :plage="plage"/>
             </div>
             </ul>
@@ -30,19 +30,20 @@
         <div>
             <div class="title">Disabled</div>
             <ul v-for="plage in plagesHorairesInoccupable" v-bind:key="plage.id_plage_horaires">
-            <div class="inoccupable card">
+            <div class="inoccupable card" v-if="plage.date_arrivee != null && plage.date_depart != null">
                 <Plage :plage="plage"/>
             </div>
             </ul>
         </div>
     </div>
-    <div class="card">
+    <div class="card" v-if="finalDate != null">
         Final reservation Date : {{finalDate}}
     </div>
     </div>
 </template>
 
 <script>
+import Cookies from 'js-cookie';
 import {API} from "../../utility/api.js";
 import Plage from "./Plage.vue";
 export default {
@@ -52,6 +53,7 @@ export default {
             pageId : this.$route.params.id,
             today: new Date(),
             formatOk: true,
+            connectedUser: String,
         }
     },
     components: {
@@ -64,9 +66,8 @@ export default {
     },
     methods: {
         async createReservation() {
-            console.log("pageId : " + this.pageId);
             if(document.getElementById("date_depart").value.match(/^\d{4}-\d{2}-\d{2}$/) && document.getElementById("date_depart").value.match(/^\d{4}-\d{2}-\d{2}$/) && document.getElementById("heure_arrivee").value.match(/^\d{2}:\d{2}$/) && document.getElementById("heure_depart").value.match(/^\d{2}:\d{2}$/)) {
-                await this.api.postReservation(this.pageId, this.pageId, 
+                await this.api.postReservation(this.pageId, this.connectedUser, 
                 `${document.getElementById("date_arrivee").value} ${document.getElementById("heure_arrivee").value}:00`, 
                 `${document.getElementById("date_depart").value} ${document.getElementById("heure_depart").value}:00`);
                 this.$root.$refs.Parking.getPlagesHorairesReservation();
@@ -76,8 +77,12 @@ export default {
             }
         },
     },
-    created() {
+    async created() {
         this.pageId = this.$route.params.id;
+        if(Cookies.get('token') != undefined){
+            await this.api.getTokenInfo(Cookies.get('token'));
+            this.connectedUser = this.api.response[0].id_utilisateur;
+        }
         this.plagesHorairesReservation.forEach(plage => {
             plage.type = "reserve";
         });
@@ -86,6 +91,7 @@ export default {
             plage.type = "inoccupable";
         });
         this.plagesHorairesInoccupable.sort((date1, date2) => date1 - date2);
+
     },
 }
 </script>

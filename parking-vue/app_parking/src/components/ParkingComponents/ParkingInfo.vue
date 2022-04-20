@@ -6,7 +6,7 @@
                 <p class="subtitle">{{parking.emplacement}}</p>
                 <p class="subtitle">Price: {{parking.prix}}$</p>
             </div>
-            <router-link  :to="{path:`/user/${owner.id}`}">
+            <router-link  :to="{path:`/user/${owner.id_utilisateur}`}">
             <div class="card notification is-primary is-light" id="ownerCard">
                 <h5><strong>Propriétaire: </strong>{{owner.prenom}} {{owner.nom}}</h5> 
                 <p> <strong>Cote: </strong>{{owner.cote}}</p>

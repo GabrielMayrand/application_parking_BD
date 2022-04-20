@@ -129,7 +129,6 @@ export default {
   },
 
   async created(){
-    console.log(Cookies.get("token"));
     await this.api.getTokenInfo(Cookies.get("token"));
   }
   
